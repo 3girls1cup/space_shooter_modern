@@ -14,6 +14,7 @@ public class WallSpawner {
     }
     
     public void update(float delta) {
+        if (true) return;
         if (TimeUtils.nanoTime() - lastSpawnTime > MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1_000_000_000L) {
             spawnWall();
             lastSpawnTime = TimeUtils.nanoTime();

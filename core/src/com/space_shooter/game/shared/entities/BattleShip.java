@@ -5,17 +5,20 @@ import org.w3c.dom.Text;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.World;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
+import com.space_shooter.game.shared.utils.BodyFactory;
 import com.space_shooter.game.weapons.WeaponManager;
 
 public abstract class BattleShip extends DrawnEntity {
     protected World world;
     protected int health;
-    protected Texture texture;
     protected Color color;
     protected WeaponManager weaponManager;
     protected Vector2 velocity;
@@ -27,7 +30,8 @@ public abstract class BattleShip extends DrawnEntity {
     protected Vector2 teleportStart;
     protected Vector2 teleportEnd;
 
-    public BattleShip() {
+
+    public BattleShip(Texture texture, Vector2 spawnPosition, String fileName) {
         this.isTeleporting = false;
         this.teleportAnimationTimer = 0f;
         this.teleportStart = new Vector2();
@@ -35,27 +39,36 @@ public abstract class BattleShip extends DrawnEntity {
         this.world = GameContext.getInstance().getWorld();
         this.weaponManager = new WeaponManager(this);
         this.velocity = new Vector2();
+        this.sprite = new Sprite(texture);
+        this.sprite.setSize(texture.getWidth() / 10, texture.getHeight() / 10);
+        this.body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0f);
+        BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 0f, false);
+        this.body.setUserData(this);
+
+        this.sprite.setOrigin(body.getLocalCenter().x, body.getLocalCenter().y);
     }
 
     @Override
-    public void render(ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+    public void update(float delta) {
+    }
 
+    @Override
+    public void render(SpriteBatch spriteBatch) {
         if (isTeleporting) {
-            shapeRenderer.setColor(color);
-    
             float progress = teleportAnimationTimer / GameConstants.TELEPORT_ANIMATION_DURATION;
             for (int i = 0; i < GameConstants.NUM_TELEPORT_CIRCLES; i++) {
                 float t = progress * (GameConstants.NUM_TELEPORT_CIRCLES - i) / GameConstants.NUM_TELEPORT_CIRCLES;
                 Vector2 pos = new Vector2(teleportStart).lerp(teleportEnd, t);
-                shapeRenderer.circle(pos.x, pos.y, radius * (1 - progress));
+                float scale = 1 - progress;
+                sprite.setPosition(pos.x - sprite.getWidth() / 2, pos.y - sprite.getHeight() / 2);
+                sprite.setSize(sprite.getWidth() * scale, sprite.getHeight() * scale);
+                sprite.setColor(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, scale);
+                sprite.draw(spriteBatch);
             }
         } else {
-            shapeRenderer.setColor(color);
-            int segments = 6 + (int) (6 * Math.cbrt(radius));
-            shapeRenderer.circle(body.getPosition().x, body.getPosition().y, radius, segments);
+            sprite.setPosition(body.getWorldPoint(body.getLocalCenter()).x - sprite.getWidth() / 2, body.getWorldPoint(body.getLocalCenter()).y - sprite.getHeight() / 2);
+            sprite.draw(spriteBatch);
         }
-        shapeRenderer.end();
     }
 
     protected void updateTeleportationAnimation(float deltaTime) {

@@ -26,12 +26,6 @@ public abstract class Weapon {
         return name;
     }
 
-    public void setProjectileTexture(String texturePath) {
-        this.projectileTexture = new Texture(texturePath);
-        this.projectileWidth = projectileTexture.getWidth();
-        this.projectileHeight = projectileTexture.getHeight();
-    }
-
     public boolean isAutomatic() {
         return automatic;
     }

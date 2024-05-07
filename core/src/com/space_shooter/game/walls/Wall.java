@@ -22,12 +22,12 @@ public class Wall extends DrawnEntity {
         this.speed = speed;
         this.height = height;
         this.color = getRandomColor();
-        this.body = BodyFactory.createBody(GameContext.getInstance().getWorld(), BodyType.KinematicBody, getInitialPosition(angle).x, getInitialPosition(angle).y, false, angle);
+        this.body = BodyFactory.getInstance().createBody(GameContext.getInstance().getWorld(), BodyType.KinematicBody, getInitialPosition(angle).x, getInitialPosition(angle).y, false, angle);
         this.body.setUserData(this);
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2, height / 2);
-        BodyFactory.createFixture(body, shape, 1f, 0f, 1f, false);
+        BodyFactory.getInstance().createFixture(body, shape, 1f, 0f, 1f, false);
     }
 
     @Override

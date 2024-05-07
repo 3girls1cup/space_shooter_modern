@@ -24,12 +24,12 @@ public class LaserBeam extends Projectile {
         this.damage = damage;
         this.width = width;
         this.length = GameConfig.SCREEN_DIAGONAL;
-        this.body = BodyFactory.createBody(owner.getWorld(), BodyType.DynamicBody, owner.getBody().getPosition().x + owner.getRadius(), owner.getBody().getPosition().y + owner.getRadius(), true, 0);
+        this.body = BodyFactory.getInstance().createBody(owner.getWorld(), BodyType.DynamicBody, owner.getBody().getPosition().x + owner.getRadius(), owner.getBody().getPosition().y + owner.getRadius(), true, 0);
         this.body.setUserData(this);
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2, length / 2);
-        BodyFactory.createFixture(body, shape, 0f, 0f, 0f, true);
+        BodyFactory.getInstance().createFixture(body, shape, 0f, 0f, 0f, true);
     }
     
     public void setDirection(Vector2 direction) {

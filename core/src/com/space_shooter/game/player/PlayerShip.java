@@ -4,10 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
@@ -17,7 +19,7 @@ import com.space_shooter.game.shared.entities.DrawnEntity;
 import com.space_shooter.game.shared.utils.BodyFactory;
 import com.space_shooter.game.walls.Wall;
 import com.space_shooter.game.weapons.BasicWeapon;
-import com.space_shooter.game.weapons.LaserWeapon;
+import com.space_shooter.game.weapons.Projectile;
 
 public class PlayerShip extends BattleShip {
     private Camera camera;
@@ -26,22 +28,18 @@ public class PlayerShip extends BattleShip {
     private boolean isShooting = false;
 
     public PlayerShip() {
-        super();
+        super(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP), new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
         this.teleportDistance = 20f;
         this.color = Color.RED;
         this.speed = GameConstants.PLAYER_SHIP_SPEED;
         this.camera = GameContext.getInstance().getCamera();
         this.health = GameConstants.PLAYER_SHIP_HEALTH;
         this.radius = GameConstants.PLAYER_SHIP_RADIUS;
-        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, Color.WHITE, 1, -1, 500, true, this.weaponManager));
-        this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
-
-        this.body = BodyFactory.createBody(world, BodyType.DynamicBody, GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2, false, 0);
-        this.body.setUserData(this);
-    
-        CircleShape shape = new CircleShape();
-        shape.setRadius(radius);
-        BodyFactory.createFixture(body, shape, 1f, 0f, 1f, false);
+        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
+        // this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
+        this.body.setTransform(body.getPosition(), - 90f * MathUtils.degreesToRadians);
+        this.body.setFixedRotation(true);
+        this.sprite.setRotation(this.body.getAngle() * MathUtils.radiansToDegrees);
     }
 
     @Override
@@ -115,21 +113,6 @@ public class PlayerShip extends BattleShip {
         }
     }
 
-    // @Override
-    // public void render(ShapeRenderer shapeRenderer) {
-    //     super.render(shapeRenderer);
-    //     if (true) {
-    //         // Dessiner la ligne de direction
-    //         Vector2 bodyPos = body.getPosition();
-    //         Vector2 mouseDirection = getDirectionFromMouse();
-    //         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-    //         shapeRenderer.setColor(Color.RED);  // Couleur de la ligne
-    //         shapeRenderer.line(bodyPos.x, bodyPos.y, mouseDirection.x, mouseDirection.y);
-    //         shapeRenderer.end();
-        
-    //     }
-    // }
-
     public boolean isShooting() {
         return isShooting;
     }
@@ -159,12 +142,17 @@ public class PlayerShip extends BattleShip {
 
     @Override
     public void onCollision(DrawnEntity entity) {
-        if (timeSinceLastCollision < GameConstants.COLLISION_COOLDOWN) {
-            return;
-        }
-        if (entity instanceof EnnemyShip || entity instanceof Wall) {
+        if (entity instanceof Wall) {
+            if (timeSinceLastCollision > GameConstants.COLLISION_COOLDOWN) {
+                takeDamage(1);
+                timeSinceLastCollision = 0f;
+            }
+        } else if (entity instanceof EnnemyShip) {
             takeDamage(1);
             timeSinceLastCollision = 0f;
+
+            EnnemyShip ennemyShip = (EnnemyShip) entity;
+            ennemyShip.takeDamage(1);
         }
     }
 }

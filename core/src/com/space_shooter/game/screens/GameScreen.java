@@ -2,14 +2,19 @@ package com.space_shooter.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -68,7 +73,6 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined); 
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight()); 
-        batch.end();
     
         shapeRenderer.setProjectionMatrix(camera.combined); 
         
@@ -84,14 +88,55 @@ public class GameScreen implements Screen {
 
             if (entity != null) {
                 entity.update(delta);
-                entity.render(shapeRenderer);
+                entity.render(batch);
+                drawBodyOutline(body, delta);
             }
         }
+        
+        batch.end();
 
 
         world.step(1/60f, 6, 2);
 
         GameContext.getInstance().getGameHUD().stage.draw();
+    }
+
+    private void drawBodyOutline(Body body, float delta) {
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED);
+        for (Fixture fixture : body.getFixtureList()) {
+            if (fixture.getShape().getType() == Shape.Type.Polygon) {
+                PolygonShape polygon = (PolygonShape) fixture.getShape();
+                float[] vertices = new float[polygon.getVertexCount() * 2];
+                for (int i = 0; i < polygon.getVertexCount(); i++) {
+                    Vector2 vertex = new Vector2();
+                    polygon.getVertex(i, vertex);
+                    // Transform local coordinates to world coordinates
+                    vertex = body.getWorldPoint(vertex);
+                    vertices[i * 2] = vertex.x;
+                    vertices[i * 2 + 1] = vertex.y;
+                }
+                shapeRenderer.polygon(vertices);
+            }
+        }
+        shapeRenderer.end();
+
+        DrawnEntity entity = (DrawnEntity) body.getUserData();
+        if (entity == null || entity.getSprite() == null) {
+            batch.begin();
+            return;
+        }
+        
+        Sprite sprite = entity.getSprite();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        Vector2 position = body.getWorldPoint(new Vector2(sprite.getWidth() / 2,sprite.getHeight()));
+        shapeRenderer.setColor(Color.YELLOW);
+        float screenX = position.x;
+        float screenY = position.y;
+        shapeRenderer.circle(screenX, screenY, 0.2f);
+        shapeRenderer.end();
+        batch.begin();
     }
     
     @Override

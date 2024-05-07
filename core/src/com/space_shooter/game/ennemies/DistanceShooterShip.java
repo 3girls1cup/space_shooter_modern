@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
@@ -26,7 +27,7 @@ public class DistanceShooterShip extends EnnemyShip {
     private boolean needNewTargetPosition = false;
 
     public DistanceShooterShip(Vector2 position) {
-        super();
+        super(GameAssets.getInstance().getTextureInstance(GameAssets.DISTANCE_SHOOTER), position, "distance_shooter");
         this.color = Color.YELLOW;
         this.health = GameConstants.DISTANCE_SHOOTER_HEALTH;
         this.radius = GameConstants.DISTANCE_SHOOTER_RADIUS;
@@ -34,14 +35,8 @@ public class DistanceShooterShip extends EnnemyShip {
         this.speed = (float) (Math.random()
                 * (GameConstants.DISTANCE_SHOOTER_MAX_SPEED - GameConstants.DISTANCE_SHOOTER_MIN_SPEED)
                 + GameConstants.DISTANCE_SHOOTER_MIN_SPEED);
-        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 20f, 0.4f, Color.RED, 1, -1, 500, true, this.weaponManager));
+        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 20f, 0.4f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
         this.playerPosition = GameContext.getInstance().getPlayer().getBody().getPosition();
-        this.body = BodyFactory.createBody(world, BodyType.DynamicBody, position.x, position.y, false, 0);
-        this.body.setUserData(this);
-
-        CircleShape shape = new CircleShape();
-        shape.setRadius(radius);
-        BodyFactory.createFixture(body, shape, 1f, 0f, 1f, false);
     }
 
     private void shootTowardPlayer() {
@@ -65,6 +60,7 @@ public class DistanceShooterShip extends EnnemyShip {
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         if (isTeleporting) {
             updateTeleportationAnimation(delta);
         } else {

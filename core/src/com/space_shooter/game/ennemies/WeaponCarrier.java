@@ -6,13 +6,14 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 
 public class WeaponCarrier extends EnnemyShip {
     
     public WeaponCarrier(Vector2 position) {
-        super();
+        super(GameAssets.getInstance().getTextureInstance(GameAssets.KAMIKAZE), position, "weapon_carrier");
         this.color = Color.BLUE;
         this.scoreValue = GameConstants.KAMIKAZE_SHIP_SCORE_VALUE;
         this.health = GameConstants.KAMIKAZE_SHIP_HEALTH;

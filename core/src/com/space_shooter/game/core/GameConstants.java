@@ -6,7 +6,7 @@ public class GameConstants {
     static public float MAX_TELEPORT_DISTANCE = 500f;
     // Paramétres de la classe PlayerShip
     static public float PLAYER_SHIP_RADIUS = 2f;
-    static public int PLAYER_SHIP_HEALTH = 3;
+    static public int PLAYER_SHIP_HEALTH = 300;
     static public float PLAYER_SHIP_SPEED = 50f;
     static public float TELEPORT_COOLDOWN = 1f;
     static public float COLLISION_COOLDOWN = 1f;
@@ -16,6 +16,7 @@ public class GameConstants {
     static public int KAMIKAZE_SHIP_HEALTH = 1;
     static public float KAMIKAZE_SHIP_MIN_SPEED = 10f;
     static public float KAMIKAZE_SHIP_MAX_SPEED = 20f;
+    static public float KAMIKAZE_SHIP_CLOSE_DISTANCE = 2f;
     // Paramétres de la classe DistanceShooterShip
     static public int DISTANCE_SHOOTER_SCORE_VALUE = 100;
     static public float DISTANCE_SHOOTER_RADIUS = 2f;

@@ -1,7 +1,8 @@
 package com.space_shooter.game.weapons;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.space_shooter.game.ennemies.EnnemyShip;
 import com.space_shooter.game.shared.entities.BattleShip;
 import com.space_shooter.game.shared.entities.DrawnEntity;
@@ -9,7 +10,8 @@ import com.space_shooter.game.shared.entities.DrawnEntity;
 public abstract class Projectile extends DrawnEntity {
     protected float speed;
     protected int damage;
-    protected Color color;
+    protected Texture texture;
+    protected Sprite sprite;
     protected float radius;
     protected BattleShip owner;
     protected boolean isDestroyedOnCollision = true;
@@ -17,20 +19,19 @@ public abstract class Projectile extends DrawnEntity {
 
     @Override
     public void update(float delta) {
+        sprite.setPosition(body.getWorldPoint(body.getLocalCenter()).x, body.getWorldPoint(body.getLocalCenter()).y);
     }
 
     @Override
-    public void render(ShapeRenderer shapeRenderer) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(color);
-            shapeRenderer.circle(body.getPosition().x, body.getPosition().y, radius);
-            shapeRenderer.end();
+    public void render(SpriteBatch spriteBatch) {
+        sprite.draw(spriteBatch);
     }
 
     @Override
     public void onCollision(DrawnEntity other) {
         if (other instanceof BattleShip) {
             BattleShip ship = (BattleShip) other;
+            
             if (EnnemyShip.class.isAssignableFrom(ship.getClass()) && EnnemyShip.class.isAssignableFrom(owner.getClass()) || ship == owner) {
                 return;
             }
