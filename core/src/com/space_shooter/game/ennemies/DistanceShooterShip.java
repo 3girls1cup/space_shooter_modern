@@ -61,8 +61,8 @@ public class DistanceShooterShip extends EnnemyShip {
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (isTeleporting) {
-            updateTeleportationAnimation(delta);
+        if (teleportAnimation.isTeleporting()) {
+            teleportAnimation.update(delta);
         } else {
             if (!arrivedInScreen) {
                 goToTargetPosition();

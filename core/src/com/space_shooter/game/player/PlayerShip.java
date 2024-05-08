@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameConstants;
@@ -16,10 +14,8 @@ import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.ennemies.EnnemyShip;
 import com.space_shooter.game.shared.entities.BattleShip;
 import com.space_shooter.game.shared.entities.DrawnEntity;
-import com.space_shooter.game.shared.utils.BodyFactory;
 import com.space_shooter.game.walls.Wall;
 import com.space_shooter.game.weapons.BasicWeapon;
-import com.space_shooter.game.weapons.Projectile;
 
 public class PlayerShip extends BattleShip {
     private Camera camera;
@@ -29,7 +25,7 @@ public class PlayerShip extends BattleShip {
 
     public PlayerShip() {
         super(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP), new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
-        this.teleportDistance = 20f;
+        this.teleportDistance = 100f;
         this.color = Color.RED;
         this.speed = GameConstants.PLAYER_SHIP_SPEED;
         this.camera = GameContext.getInstance().getCamera();
@@ -37,15 +33,15 @@ public class PlayerShip extends BattleShip {
         this.radius = GameConstants.PLAYER_SHIP_RADIUS;
         this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
         // this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
-        this.body.setTransform(body.getPosition(), - 90f * MathUtils.degreesToRadians);
+        this.body.setTransform(body.getPosition(), -90 * MathUtils.degreesToRadians);
         this.body.setFixedRotation(true);
-        this.sprite.setRotation(this.body.getAngle() * MathUtils.radiansToDegrees);
+        this.sprite.setRotation(-90);
     }
 
     @Override
     public void update(float delta) {
-        if (isTeleporting) {
-            updateTeleportationAnimation(delta);
+        if (teleportAnimation.isTeleporting()) {
+            teleportAnimation.update(delta);
         } else {
             handleInput();
 
@@ -108,8 +104,7 @@ public class PlayerShip extends BattleShip {
                 velocity.y -= 1;
             }
 
-            velocity.scl(speed);
-            body.setLinearVelocity(velocity);
+            body.setLinearVelocity(velocity.scl(speed));
         }
     }
 

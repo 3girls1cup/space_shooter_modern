@@ -32,8 +32,8 @@ public class KamikazeShip extends EnnemyShip{
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (isTeleporting) {
-            updateTeleportationAnimation(delta);
+        if (teleportAnimation.isTeleporting()) {
+            teleportAnimation.update(delta);
         } else if (playerPosition != null) {
             moveTowardPlayer(delta);
         }

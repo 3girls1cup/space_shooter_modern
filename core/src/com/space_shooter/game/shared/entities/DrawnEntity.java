@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 public abstract class DrawnEntity {
     protected boolean markedForRemoval = false;
     protected Body body;
-    protected Sprite sprite;
+    public Sprite sprite;
 
     public Sprite getSprite() {
         if (sprite == null) {

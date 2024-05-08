@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.shared.utils.BodyFactory;
+import com.space_shooter.game.shared.utils.TeleportAnimation;
 import com.space_shooter.game.weapons.WeaponManager;
 
 public abstract class BattleShip extends DrawnEntity {
@@ -29,6 +30,8 @@ public abstract class BattleShip extends DrawnEntity {
     protected float teleportAnimationTimer;
     protected Vector2 teleportStart;
     protected Vector2 teleportEnd;
+    protected TeleportAnimation teleportAnimation;
+    
 
 
     public BattleShip(Texture texture, Vector2 spawnPosition, String fileName) {
@@ -41,52 +44,38 @@ public abstract class BattleShip extends DrawnEntity {
         this.velocity = new Vector2();
         this.sprite = new Sprite(texture);
         this.sprite.setSize(texture.getWidth() / 10, texture.getHeight() / 10);
-        this.body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0f);
+        this.body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0);
         BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 0f, false);
         this.body.setUserData(this);
 
-        this.sprite.setOrigin(body.getLocalCenter().x, body.getLocalCenter().y);
+        this.sprite.setOriginCenter();
+
+        this.teleportAnimation = new TeleportAnimation(sprite, body);
     }
 
     @Override
     public void update(float delta) {
+        teleportAnimation.update(delta);
     }
 
     @Override
     public void render(SpriteBatch spriteBatch) {
-        if (isTeleporting) {
-            float progress = teleportAnimationTimer / GameConstants.TELEPORT_ANIMATION_DURATION;
-            for (int i = 0; i < GameConstants.NUM_TELEPORT_CIRCLES; i++) {
-                float t = progress * (GameConstants.NUM_TELEPORT_CIRCLES - i) / GameConstants.NUM_TELEPORT_CIRCLES;
-                Vector2 pos = new Vector2(teleportStart).lerp(teleportEnd, t);
-                float scale = 1 - progress;
-                sprite.setPosition(pos.x - sprite.getWidth() / 2, pos.y - sprite.getHeight() / 2);
-                sprite.setSize(sprite.getWidth() * scale, sprite.getHeight() * scale);
-                sprite.setColor(sprite.getColor().r, sprite.getColor().g, sprite.getColor().b, scale);
-                sprite.draw(spriteBatch);
-            }
+        if (teleportAnimation.isTeleporting()) {
+            teleportAnimation.render(spriteBatch);
         } else {
-            sprite.setPosition(body.getWorldPoint(body.getLocalCenter()).x - sprite.getWidth() / 2, body.getWorldPoint(body.getLocalCenter()).y - sprite.getHeight() / 2);
+            Vector2 centerPos = body.getWorldCenter();
+            sprite.setPosition(centerPos.x - sprite.getWidth() / 2, centerPos.y - sprite.getHeight() / 2);
             sprite.draw(spriteBatch);
-        }
-    }
-
-    protected void updateTeleportationAnimation(float deltaTime) {
-        teleportAnimationTimer += deltaTime;
-        if (teleportAnimationTimer >= GameConstants.TELEPORT_ANIMATION_DURATION) {
-            isTeleporting = false;
-            body.setTransform(teleportEnd, body.getAngle());
         }
     }
 
     protected void startTeleportationAnimation(Vector2 direction) {
         if (direction.len() > teleportDistance) {
             direction.setLength(teleportDistance);
-        } 
-        teleportEnd.set(body.getPosition().add(direction));
-        teleportStart.set(body.getPosition());
-        isTeleporting = true;
-        teleportAnimationTimer = 0f;
+        }
+        
+        Vector2 end = new Vector2(body.getWorldCenter().add(direction).sub(sprite.getWidth() / 2, sprite.getHeight() / 2));
+        teleportAnimation.startTeleportation(body.getWorldCenter(), end);
     }
 
     public WeaponManager getWeaponManager() {
@@ -159,15 +148,15 @@ public abstract class BattleShip extends DrawnEntity {
         float maxY = camera.position.y + camera.viewportHeight / 2;
     
         if (position.x - radius <= minX) {
-            return 1; // Gauche
+            return 1; 
         } else if (position.x + radius >= maxX) {
-            return 2; // Droite
+            return 2; 
         } else if (position.y - radius <= minY) {
-            return 3; // Bas
+            return 3; 
         } else if (position.y + radius >= maxY) {
-            return 4; // Haut
+            return 4; 
         }
-        return 0; // Pas sur un bord
+        return 0; 
     }
     
 }
