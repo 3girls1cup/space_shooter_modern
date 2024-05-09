@@ -10,6 +10,7 @@ public class GamePlayManager {
     private int enemiesKilled;
     private int enemiesSpawned;
     private HashMap<String, Integer> enemies;
+    
     public GamePlayManager() {
         this.score = 0;
         this.enemiesKilled = 0;
@@ -23,6 +24,7 @@ public class GamePlayManager {
         } else {
             enemies.put(enemyType.getClass().getSimpleName(), 1);
         }
+        System.out.println("Enemies left: " + getEnnemiesLeft());
         enemiesSpawned++;
     }
 
@@ -31,6 +33,8 @@ public class GamePlayManager {
             enemies.put(enemyType.getClass().getSimpleName(), enemies.get(enemyType.getClass().getSimpleName()) - 1);
         }
         enemiesKilled++;
+
+        System.out.println("Enemies left: " + getEnnemiesLeft());
         DifficultyManager.getInstance().update(enemyType.getScoreValue());
         addScore(enemyType.getScoreValue());
         GameContext.getInstance().getGameHUD().updateScore(score);
@@ -41,7 +45,7 @@ public class GamePlayManager {
     }
 
     public int getEnnemiesLeft() {
-        return enemiesSpawned - enemiesKilled;
+        return Math.max(0, enemiesSpawned - enemiesKilled);
     }
 
     public int getScore() {

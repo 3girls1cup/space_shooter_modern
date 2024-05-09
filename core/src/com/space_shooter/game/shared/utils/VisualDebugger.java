@@ -34,11 +34,11 @@ public class VisualDebugger {
         this.debugDistanceShooter = debugDistanceShooter;
     }
 
-    public boolean getDebugBodyOutline() {
+    public boolean isDebuggingBodyOutline() {
         return debugBodyOutline;
     }
 
-    public boolean getDebugDistanceShooter() {
+    public boolean isDebuggingDistanceShooter() {
         return debugDistanceShooter;
     }
 
@@ -52,7 +52,7 @@ public class VisualDebugger {
         drawLine(shapeRenderer, bodyPosition, targetPosition, Color.RED);
         drawLine(shapeRenderer,snapshotPos, maxAngle, Color.GREEN);
         drawLine(shapeRenderer, snapshotPos, minAngle, Color.GREEN);
-        drawCircle(shapeRenderer, playerPosition, SAFE_DISTANCE, Color.YELLOW);
+        drawCircle(shapeRenderer, playerPosition, SAFE_DISTANCE, Color.YELLOW, ShapeRenderer.ShapeType.Line);
         batch.begin();
     }
 
@@ -86,7 +86,7 @@ public class VisualDebugger {
             return;
         }
         
-        drawCircle(shapeRenderer, body.getWorldCenter(), 0.4f, Color.YELLOW);
+        drawCircle(shapeRenderer, body.getWorldCenter(), 0.4f, Color.YELLOW, ShapeRenderer.ShapeType.Filled);
         
         batch.begin();
     }
@@ -98,8 +98,8 @@ public class VisualDebugger {
         shapeRenderer.end();
     }
 
-    private static void drawCircle(ShapeRenderer shapeRenderer, Vector2 position, float radius, Color color) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+    private static void drawCircle(ShapeRenderer shapeRenderer, Vector2 position, float radius, Color color, ShapeRenderer.ShapeType shapeType) {
+        shapeRenderer.begin(shapeType);
         shapeRenderer.setColor(color);
         shapeRenderer.circle(position.x, position.y, radius);
         shapeRenderer.end();

@@ -39,7 +39,7 @@ public class EnnemySpawner {
     public void update(float delta) {
         if (TimeUtils.millis() - lastSpawnTime >  nextSpawnDelay) {
             int ennemiesLeft = GameContext.getInstance().getGamePlayManager().getEnnemiesLeft();
-            if (ennemiesLeft < GameConfig.MAX_ENEMIES && ennemiesLeft >= 0) {
+            if (ennemiesLeft < GameConfig.MAX_ENEMIES) {
                 spawnAlienShip();
                 lastSpawnTime = TimeUtils.millis();
                 nextSpawnDelay = (long) MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1_000L;

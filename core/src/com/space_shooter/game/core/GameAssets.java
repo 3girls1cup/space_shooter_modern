@@ -7,22 +7,24 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.audio.Sound;
 
 
 public class GameAssets {
-    public static String HEART_ICON = "heart_icon.png";
-    public static String BACKGROUND = "background.jpg";
-    public static String PLAYER_SHIP = "player_ship.png";
-    public static String ANIMATED_PLAYER_SHIP = "player_ship_animated.png";
-    public static String KAMIKAZE = "kamikaze.png";
-    public static String DISTANCE_SHOOTER = "distance_shooter.png";
-    public static String CROSSHAIR_ICON = "crosshair.png";
-    public static String LASER_ICON = "weapons/Laser.png";
-    public static String BASIC_ICON = "weapons/Basic.png";
-    public static String BASIC_WEAPON_PLAYER = "weapons/BasicPlayer.png";
-    public static String LASER_BEAM = "weapons/texture_laser.png";
-    public static String WALL = "wall/texture_wall.png";
+    public static final String HEART_ICON = "heart_icon.png";
+    public static final String BACKGROUND = "background.jpg";
+    public static final String PLAYER_SHIP = "player_ship.png";
+    public static final String ANIMATED_PLAYER_SHIP = "player_ship_animated.png";
+    public static final String KAMIKAZE = "kamikaze.png";
+    public static final String DISTANCE_SHOOTER = "distance_shooter.png";
+    public static final String CROSSHAIR_ICON = "crosshair.png";
+    public static final String LASER_ICON = "weapons/Laser.png";
+    public static final String BASIC_ICON = "weapons/Basic.png";
+    public static final String BASIC_WEAPON_PLAYER = "weapons/BasicPlayer.png";
+    public static final String LASER_BEAM = "weapons/texture_laser.png";
+    public static final String WALL = "wall/texture_wall.png";
+    public static final String SKIN_SCI_FI = "skin/star-soldier-ui.json";
     private static GameAssets instance;
     private HashMap<String, Class<?>> assets;
     private AssetManager assetManager;
@@ -41,6 +43,7 @@ public class GameAssets {
         assets.put(BASIC_WEAPON_PLAYER, Texture.class);
         assets.put(LASER_BEAM, Texture.class);
         assets.put(WALL, Texture.class);
+        assets.put(SKIN_SCI_FI, Skin.class);
 
         loadAssets();
         assetManager.finishLoading();
@@ -64,6 +67,13 @@ public class GameAssets {
     public Texture getTextureInstance(String asset) {
         if (assets.get(asset) == Texture.class) {
             return assetManager.get(getAssetPath(asset), Texture.class);
+        }
+        return null;
+    }
+
+    public Skin getSkinInstance(String asset) {
+        if (assets.get(asset) == Skin.class) {
+            return assetManager.get(getAssetPath(asset), Skin.class);
         }
         return null;
     }
