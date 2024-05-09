@@ -144,7 +144,7 @@ public class GameScreen implements Screen {
         viewport.update(width, height);
         PlayerShip player = GameContext.getInstance().getPlayer();
         if (player != null) {
-            camera.position.set(GameConfig.WORLD_WIDTH / 2, player.getBody().getPosition().y, 0);
+            camera.position.set(GameConfig.WORLD_WIDTH / 2, player.getBody().getWorldCenter().y, 0);
         }
     }
     

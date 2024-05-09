@@ -35,8 +35,7 @@ public abstract class Projectile extends DrawnEntity {
             if (EnnemyShip.class.isAssignableFrom(ship.getClass()) && EnnemyShip.class.isAssignableFrom(owner.getClass()) || ship == owner) {
                 return;
             }
-
-            ship.takeDamage(damage);
+            if (!ship.isMarkedForRemoval()) ship.takeDamage(damage);
             
             if (isDestroyedOnCollision) {
                 markForRemoval();

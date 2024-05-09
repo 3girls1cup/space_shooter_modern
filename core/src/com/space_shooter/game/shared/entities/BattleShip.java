@@ -47,7 +47,7 @@ public abstract class BattleShip extends DrawnEntity {
         this.body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0);
         BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 0f, false);
         this.body.setUserData(this);
-
+        this.body.setFixedRotation(true);
         this.sprite.setOriginCenter();
 
         this.teleportAnimation = new TeleportAnimation(sprite, body);
@@ -74,7 +74,7 @@ public abstract class BattleShip extends DrawnEntity {
             direction.setLength(teleportDistance);
         }
         
-        Vector2 end = new Vector2(body.getWorldCenter().add(direction).sub(sprite.getWidth() / 2, sprite.getHeight() / 2));
+        Vector2 end = new Vector2(body.getWorldCenter().add(direction));
         teleportAnimation.startTeleportation(body.getWorldCenter(), end);
     }
 
@@ -110,8 +110,8 @@ public abstract class BattleShip extends DrawnEntity {
     }
 
     public int getQuadrantPosition() {
-        float x = body.getPosition().x;
-        float y = body.getPosition().y;
+        float x = body.getWorldCenter().x;
+        float y = body.getWorldCenter().y;
         if (x > GameContext.getInstance().getCamera().viewportWidth / 2) {
             if (y > GameContext.getInstance().getCamera().viewportHeight / 2) {
                 return 1;
@@ -132,13 +132,13 @@ public abstract class BattleShip extends DrawnEntity {
     }
     
     public boolean isInsideScreen() {
-        float x = body.getPosition().x + radius;
-        float y = body.getPosition().y + radius;
+        float x = body.getWorldCenter().x + radius;
+        float y = body.getWorldCenter().y + radius;
         return x >= 0 && x <= GameContext.getInstance().getCamera().viewportWidth && y >= 0 && y <= GameContext.getInstance().getCamera().viewportHeight;
     }
 
     public int isHedgeOfScreen() {
-        Vector2 position = body.getPosition();
+        Vector2 position = body.getWorldCenter();
     
         OrthographicCamera camera = GameContext.getInstance().getCamera();
     

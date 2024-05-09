@@ -25,7 +25,7 @@ public class KamikazeShip extends EnnemyShip{
         this.health = GameConstants.KAMIKAZE_SHIP_HEALTH;
         this.radius = GameConstants.KAMIKAZE_SHIP_RADIUS;
         this.speed = (float) (Math.random() * (GameConstants.KAMIKAZE_SHIP_MAX_SPEED - GameConstants.KAMIKAZE_SHIP_MIN_SPEED) + GameConstants.KAMIKAZE_SHIP_MIN_SPEED);
-        this.playerPosition = GameContext.getInstance().getPlayer().getBody().getPosition();
+        this.playerPosition = GameContext.getInstance().getPlayer().getBody().getWorldCenter();
         this.body.setFixedRotation(true);
     }
 
@@ -46,9 +46,7 @@ public class KamikazeShip extends EnnemyShip{
             float angle = getRealisticRotationAngle(delta);
             
             if (angle != -500) {
-                body.setTransform(body.getPosition(), angle * MathUtils.degreesToRadians);
-            } else {
-                System.out.println(angle);
+                body.setTransform(body.getWorldCenter(), angle * MathUtils.degreesToRadians);
             }
         }
 

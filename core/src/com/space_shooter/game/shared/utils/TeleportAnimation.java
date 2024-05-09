@@ -1,6 +1,7 @@
 package com.space_shooter.game.shared.utils;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
@@ -14,15 +15,18 @@ public class TeleportAnimation {
     private float teleportAnimationTimer;
     private Vector2 teleportStart;
     private Vector2 teleportEnd;
+    private Vector2 teleportEndBodyCorrection;
     private Array<Sprite> teleportSprites;
     private boolean isTeleporting;
     private Sprite baseSprite;
+    private boolean a;
 
     public TeleportAnimation(Sprite baseSprite, Body body) {
         this.body = body;
         this.teleportAnimationTimer = 0f;
         this.teleportStart = new Vector2();
         this.teleportEnd = new Vector2();
+        this.teleportEndBodyCorrection = new Vector2();
         this.teleportSprites = new Array<>();
         this.baseSprite = baseSprite;
         this.isTeleporting = false;
@@ -37,9 +41,24 @@ public class TeleportAnimation {
 
     public void startTeleportation(Vector2 start, Vector2 end) {
         this.teleportStart.set(start);
-        this.teleportEnd.set(end);
+        this.teleportEndBodyCorrection.set(end);
         this.teleportAnimationTimer = 0f;
         this.isTeleporting = true;
+        a = true;
+
+        float angle = body.getAngle();
+            
+        float cos = MathUtils.cos(angle);
+        float sin = MathUtils.sin(angle);
+
+        float bx = -body.getLocalCenter().x * cos + body.getLocalCenter().y * sin;
+        float by = -body.getLocalCenter().x * sin - body.getLocalCenter().y * cos;
+
+        float sx = -baseSprite.getOriginX() * cos + baseSprite.getOriginY() * sin;
+        float sy = -baseSprite.getOriginX() * sin - baseSprite.getOriginY() * cos;
+
+        this.teleportEndBodyCorrection.set(bx, by);
+        this.teleportEnd.set(end.x + sx, end.y + sy);
     }
 
     public void update(float deltaTime) {
@@ -48,9 +67,9 @@ public class TeleportAnimation {
         teleportAnimationTimer += deltaTime;
         if (teleportAnimationTimer >= GameConstants.TELEPORT_ANIMATION_DURATION) {
             isTeleporting = false;
-            body.setTransform(teleportEnd.x - body.getLocalCenter().x, teleportEnd.y - body.getLocalCenter().y, body.getAngle());
-            System.out.println("Body world center: " + body.getWorldCenter());
-            System.out.println("Body local center: " + body.getLocalCenter());
+
+
+            body.setTransform(teleportEnd.add(teleportEndBodyCorrection), body.getAngle());
         }
     }
 
@@ -77,19 +96,11 @@ public class TeleportAnimation {
 
             tempSprite.setRotation(baseSprite.getRotation());
             tempSprite.setScale(scale);
-            tempSprite.setPosition(pos.x - baseSprite.getWidth() / 2, pos.y - baseSprite.getHeight() / 2);
+            tempSprite.setPosition(pos.x - tempSprite.getWidth() / 2, pos.y - tempSprite.getHeight() / 2);
             tempSprite.setColor(tempSprite.getColor().r, tempSprite.getColor().g, tempSprite.getColor().b, visibility);
     
             tempSprite.draw(spriteBatch);
-            if (i == 9) {
-                System.out.println("Body local center: " + body.getLocalCenter());
-                System.out.println("Sprite position: " + pos.x + ", " + pos.y);
-                System.out.println("Sprite center" + tempSprite.getOriginX() + ", " + tempSprite.getOriginY());
-                System.out.println("Base sprite center: " + baseSprite.getOriginX() + ", " + baseSprite.getOriginY());
-                System.out.println("teleportEnd: " + teleportEnd.x + ", " + teleportEnd.y + "\n");
-            }
         }
-        System.out.println();
     }
 
     private float calculateOpacity(float currentProgress, float peakTime, float endFadeTime, int index, int numSprites) {

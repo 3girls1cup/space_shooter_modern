@@ -19,7 +19,7 @@ public class BulletProjectile extends Projectile {
 
         this.sprite = new Sprite(texture);
         this.sprite.setSize(texture.getWidth() / 10, texture.getHeight() / 10);
-        this.body = BodyFactory.getInstance().createBody(owner.getWorld(), BodyType.DynamicBody, owner.getBody().getPosition().x + owner.getRadius() * velocity.x, owner.getBody().getPosition().y + owner.getRadius() * velocity.y, true, velocity.angleDeg() - 90);
+        this.body = BodyFactory.getInstance().createBody(owner.getWorld(), BodyType.DynamicBody, owner.getBody().getWorldCenter().x + owner.getRadius() * velocity.x, owner.getBody().getWorldCenter().y + owner.getRadius() * velocity.y, true, velocity.angleDeg() - 90);
         BodyFactory.getInstance().attachComplexeFixture(body, "basic_projectile_player", this.sprite.getWidth(), 0f, 0f, 0f, true);
         this.body.setUserData(this);
         body.setLinearVelocity(velocity.scl(speed));

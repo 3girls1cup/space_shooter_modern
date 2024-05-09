@@ -16,6 +16,7 @@ import com.space_shooter.game.shared.entities.BattleShip;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 import com.space_shooter.game.walls.Wall;
 import com.space_shooter.game.weapons.BasicWeapon;
+import com.space_shooter.game.weapons.LaserWeapon;
 
 public class PlayerShip extends BattleShip {
     private Camera camera;
@@ -32,9 +33,9 @@ public class PlayerShip extends BattleShip {
         this.health = GameConstants.PLAYER_SHIP_HEALTH;
         this.radius = GameConstants.PLAYER_SHIP_RADIUS;
         this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
-        // this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
-        this.body.setTransform(body.getPosition(), -90 * MathUtils.degreesToRadians);
-        this.body.setFixedRotation(true);
+        this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
+        this.body.setTransform(body.getWorldCenter(), -90 * MathUtils.degreesToRadians);
+
         this.sprite.setRotation(-90);
     }
 
@@ -45,7 +46,7 @@ public class PlayerShip extends BattleShip {
         } else {
             handleInput();
 
-            Vector2 position = body.getPosition();
+            Vector2 position = body.getWorldCenter();
             float halfWidth = radius;
             float halfHeight = radius;
 
@@ -125,7 +126,7 @@ public class PlayerShip extends BattleShip {
 
     private Vector2 getDirectionFromMouse() {
         Vector3 mousePosInWorld = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        return new Vector2(mousePosInWorld.x, mousePosInWorld.y).sub(body.getPosition());
+        return new Vector2(mousePosInWorld.x, mousePosInWorld.y).sub(body.getWorldCenter());
     }
 
     public void increaseTeleportDistance(float amount) {

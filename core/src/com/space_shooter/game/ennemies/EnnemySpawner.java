@@ -11,6 +11,7 @@ import com.space_shooter.game.core.GameContext;
 
 public class EnnemySpawner {
     private long lastSpawnTime;
+    private long nextSpawnDelay;
     private float minSpawnDelay = 1.0f; 
     private float maxSpawnDelay = 3.0f;
 
@@ -29,17 +30,19 @@ public class EnnemySpawner {
     Array<EnnemyFactoryEntry> ennemyFactories;
 
     public EnnemySpawner() {
-        lastSpawnTime = TimeUtils.nanoTime();
+        lastSpawnTime = TimeUtils.millis();
         ennemyFactories = new Array<>();
-        ennemyFactories.add(new EnnemyFactoryEntry("Kamikaze", position -> new KamikazeShip(position), 1.0f));
+        // ennemyFactories.add(new EnnemyFactoryEntry("Kamikaze", position -> new KamikazeShip(position), 1.0f));
         ennemyFactories.add(new EnnemyFactoryEntry("Distance Shooter", position -> new DistanceShooterShip(position), 0.0f));
     }
 
     public void update(float delta) {
-        if (TimeUtils.nanoTime() - lastSpawnTime > MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1_000_000_000L) {
-            if (GameContext.getInstance().getGamePlayManager().getEnnemiesLeft() < GameConfig.MAX_ENEMIES) {
+        if (TimeUtils.millis() - lastSpawnTime >  nextSpawnDelay) {
+            int ennemiesLeft = GameContext.getInstance().getGamePlayManager().getEnnemiesLeft();
+            if (ennemiesLeft < GameConfig.MAX_ENEMIES && ennemiesLeft >= 0) {
                 spawnAlienShip();
-                lastSpawnTime = TimeUtils.nanoTime();
+                lastSpawnTime = TimeUtils.millis();
+                nextSpawnDelay = (long) MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1_000L;
             }
         }
     }

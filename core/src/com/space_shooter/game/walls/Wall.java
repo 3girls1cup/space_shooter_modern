@@ -32,7 +32,7 @@ public class Wall extends DrawnEntity {
 
     @Override
     public void update(float delta) {
-        if (body.getPosition().x < 0) {
+        if (body.getWorldCenter().x < 0) {
             markForRemoval();
         }
 
@@ -46,7 +46,7 @@ public class Wall extends DrawnEntity {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(color);
         shapeRenderer.identity();
-        shapeRenderer.translate(body.getPosition().x, body.getPosition().y, 0);
+        shapeRenderer.translate(body.getWorldCenter().x, body.getWorldCenter().y, 0);
         shapeRenderer.rotate(0, 0, 1, body.getAngle() * MathUtils.radiansToDegrees);
         shapeRenderer.rect(-width / 2, -height / 2, width, height);
         shapeRenderer.identity();

@@ -2,7 +2,7 @@ package com.space_shooter.game.core;
 
 public class GameConstants {
     static public int NUM_TELEPORT_CIRCLES = 10;
-    static public float TELEPORT_ANIMATION_DURATION = 2f;
+    static public float TELEPORT_ANIMATION_DURATION = 0.4f;
     static public float MAX_TELEPORT_DISTANCE = 500f;
     // Paramétres de la classe PlayerShip
     static public float PLAYER_SHIP_RADIUS = 2f;
