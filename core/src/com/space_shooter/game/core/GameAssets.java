@@ -14,6 +14,7 @@ public class GameAssets {
     public static String HEART_ICON = "heart_icon.png";
     public static String BACKGROUND = "background.jpg";
     public static String PLAYER_SHIP = "player_ship.png";
+    public static String ANIMATED_PLAYER_SHIP = "player_ship_animated.png";
     public static String KAMIKAZE = "kamikaze.png";
     public static String DISTANCE_SHOOTER = "distance_shooter.png";
     public static String CROSSHAIR_ICON = "crosshair.png";

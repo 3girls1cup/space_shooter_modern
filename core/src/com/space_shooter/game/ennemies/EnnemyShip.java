@@ -13,7 +13,9 @@ public abstract class EnnemyShip extends BattleShip {
     private float rotationSpeed = 2.0f;
 
     public EnnemyShip(Texture texture, Vector2 spawnPosition, String fileName) {
-        super(texture, spawnPosition, fileName);
+        super();
+        setStaticSprite(texture);
+        addBodyToWorld(spawnPosition, fileName);
         this.teleportDistance = 40f;
     }
 

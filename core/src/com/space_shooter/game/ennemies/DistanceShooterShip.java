@@ -2,7 +2,6 @@ package com.space_shooter.game.ennemies;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -12,6 +11,7 @@ import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.shared.entities.DrawnEntity;
+import com.space_shooter.game.shared.utils.VisualDebugger;
 import com.space_shooter.game.walls.Wall;
 import com.space_shooter.game.weapons.BasicWeapon;
 
@@ -25,9 +25,12 @@ public class DistanceShooterShip extends EnnemyShip {
     private Vector2 playerPosition;
     private Vector2 targetPosition = new Vector2();
     private boolean needNewTargetPosition = false;
+
+    /*#### For debugging purposes ####*/
     private Vector2 maxAngle = new Vector2();
     private Vector2 minAngle = new Vector2();
     private Vector2 snapshotPos = new Vector2();
+    /*################################*/
 
     public DistanceShooterShip(Vector2 position) {
         super(GameAssets.getInstance().getTextureInstance(GameAssets.DISTANCE_SHOOTER), position, "distance_shooter");
@@ -60,25 +63,9 @@ public class DistanceShooterShip extends EnnemyShip {
     @Override
     public void render(SpriteBatch batch) {
         super.render(batch);
-        drawRedLineToTarget(batch);
-
+        VisualDebugger.getInstance().drawDistanceShooterDebug(batch, body.getWorldCenter(), targetPosition, playerPosition, snapshotPos, maxAngle, minAngle, SAFE_DISTANCE);
     }
 
-    private void drawRedLineToTarget(SpriteBatch batch) {
-        batch.end();
-        ShapeRenderer shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.line(body.getWorldCenter(), targetPosition);
-        shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.line(snapshotPos, maxAngle);
-        shapeRenderer.line(snapshotPos, minAngle);
-        shapeRenderer.setColor(Color.YELLOW);
-        shapeRenderer.circle(playerPosition.x, playerPosition.y, SAFE_DISTANCE);
-        shapeRenderer.end();
-        batch.begin();
-    }
 
     @Override
     public void update(float delta) {
@@ -169,9 +156,11 @@ public class DistanceShooterShip extends EnnemyShip {
                 chosen_angle = MathUtils.random(angle_max, MathUtils.PI2);
             }
 
+            /*#### For debugging purposes ####*/
             maxAngle.set(xA + d * MathUtils.cos(angle_max), yA + d * MathUtils.sin(angle_max));
             minAngle.set(xA + d * MathUtils.cos(angle_min), yA + d * MathUtils.sin(angle_min));
             snapshotPos.set(xA, yA);
+            /*################################*/
 
             float maxDistance = calculateMaxDistance(xA, yA, chosen_angle);
             float chosen_distance = MathUtils.random(r + 1, maxDistance);

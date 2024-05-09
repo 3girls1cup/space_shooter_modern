@@ -125,4 +125,12 @@ public class GameHUD {
     public void update() {
         updateHealth();
     }
+
+    public void resize(int width, int height) {
+        // stage.getViewport().update(width, height, true);
+    }
+
+    public void dispose() {
+        stage.dispose();
+    }
 }

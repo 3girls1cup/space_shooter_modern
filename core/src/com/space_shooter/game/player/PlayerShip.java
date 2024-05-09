@@ -25,7 +25,8 @@ public class PlayerShip extends BattleShip {
     private boolean isShooting = false;
 
     public PlayerShip() {
-        super(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP), new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
+        // super(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP), new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
+        super();
         this.teleportDistance = 100f;
         this.color = Color.RED;
         this.speed = GameConstants.PLAYER_SHIP_SPEED;
@@ -33,6 +34,9 @@ public class PlayerShip extends BattleShip {
         this.health = GameConstants.PLAYER_SHIP_HEALTH;
         this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
         this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
+        setStaticSprite(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP));
+        // setAnimationSprite(7,3, GameAssets.getInstance().getTextureInstance(GameAssets.ANIMATED_PLAYER_SHIP));
+        addBodyToWorld(new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
         this.body.setTransform(body.getWorldCenter(), -90 * MathUtils.degreesToRadians);
 
         this.sprite.setRotation(-90);
@@ -43,6 +47,8 @@ public class PlayerShip extends BattleShip {
         if (teleportAnimation.isTeleporting()) {
             teleportAnimation.update(delta);
         } else {
+            super.update(delta);
+            
             handleInput();
 
             Vector2 position = body.getPosition();

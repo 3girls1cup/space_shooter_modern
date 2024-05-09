@@ -1,6 +1,7 @@
 package com.space_shooter.game.core;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -75,4 +76,11 @@ public class GameContext {
         return gameScreen.getViewport();
     }
 
+    public void dispose() {
+        gameHUD.dispose();
+    }
+
+    public ShapeRenderer getShapeRenderer() {
+        return gameScreen.getShapeRenderer();
+    }
 }

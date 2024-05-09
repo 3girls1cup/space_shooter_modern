@@ -1,20 +1,16 @@
 package com.space_shooter.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -24,8 +20,10 @@ import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.core.SpaceShooter;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 import com.space_shooter.game.shared.utils.GameContactListener;
+import com.space_shooter.game.shared.utils.VisualDebugger;
 
 public class GameScreen implements Screen {
+    private SpaceShooter game;
     private OrthographicCamera camera;
     private Viewport viewport;
     private World world;
@@ -36,6 +34,7 @@ public class GameScreen implements Screen {
     private Array<Body> bodies;
 
     public GameScreen(SpaceShooter game) {
+        this.game = game;
         this.batch = game.batch;
         this.backgroundTexture = new Texture("background.jpg");
         camera = new OrthographicCamera();
@@ -61,11 +60,9 @@ public class GameScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         
         camera.update();
         viewport.apply();
-
         
         batch.setProjectionMatrix(camera.combined); 
         batch.begin();
@@ -86,7 +83,7 @@ public class GameScreen implements Screen {
             if (entity != null) {
                 entity.update(delta);
                 entity.render(batch);
-                drawBodyOutline(body, delta);
+                VisualDebugger.getInstance().drawBodyOutline(shapeRenderer, batch, body, delta);
             }
         }
         
@@ -96,49 +93,20 @@ public class GameScreen implements Screen {
         world.step(1/60f, 6, 2);
 
         GameContext.getInstance().getGameHUD().stage.draw();
+
+        handleInput(delta);
     }
 
-    private void drawBodyOutline(Body body, float delta) {
-        batch.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-        for (Fixture fixture : body.getFixtureList()) {
-            if (fixture.getShape().getType() == Shape.Type.Polygon) {
-                PolygonShape polygon = (PolygonShape) fixture.getShape();
-                float[] vertices = new float[polygon.getVertexCount() * 2];
-                for (int i = 0; i < polygon.getVertexCount(); i++) {
-                    Vector2 vertex = new Vector2();
-                    polygon.getVertex(i, vertex);
-                    // Transform local coordinates to world coordinates
-                    vertex = body.getWorldPoint(vertex);
-                    vertices[i * 2] = vertex.x;
-                    vertices[i * 2 + 1] = vertex.y;
-                }
-                shapeRenderer.polygon(vertices);
-            }
+    private void handleInput(float delta) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new PauseScreen(game, this));
         }
-        shapeRenderer.end();
-
-        DrawnEntity entity = (DrawnEntity) body.getUserData();
-        if (entity == null || entity.getSprite() == null) {
-            batch.begin();
-            return;
-        }
-        
-        Sprite sprite = entity.getSprite();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        Vector2 position = body.getWorldPoint(new Vector2(sprite.getWidth() / 2,sprite.getHeight()));
-        shapeRenderer.setColor(Color.YELLOW);
-        float screenX = position.x;
-        float screenY = position.y;
-        shapeRenderer.circle(screenX, screenY, 0.2f);
-        shapeRenderer.end();
-        batch.begin();
     }
     
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+        GameContext.getInstance().getGameHUD().resize(width, height);
         camera.position.set(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2, 0);
     }
     
@@ -158,9 +126,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        GameContext.getInstance().dispose();
         world.dispose();
         debugRenderer.dispose();
         shapeRenderer.dispose();
+        batch.dispose();
+        backgroundTexture.dispose();
     }
 
     public OrthographicCamera getCamera() {
@@ -177,5 +148,9 @@ public class GameScreen implements Screen {
 
     public Array<Body> getBodies() {
         return bodies;
+    }
+
+    public ShapeRenderer getShapeRenderer() {
+        return shapeRenderer;
     }
 }
