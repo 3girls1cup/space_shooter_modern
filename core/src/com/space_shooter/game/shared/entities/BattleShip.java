@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.World;
+import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.shared.utils.BodyFactory;
@@ -23,7 +24,6 @@ public abstract class BattleShip extends DrawnEntity {
     protected Color color;
     protected WeaponManager weaponManager;
     protected Vector2 velocity;
-    protected float radius;
     protected float speed;
     protected float teleportDistance;
     protected boolean isTeleporting;
@@ -43,7 +43,7 @@ public abstract class BattleShip extends DrawnEntity {
         this.weaponManager = new WeaponManager(this);
         this.velocity = new Vector2();
         this.sprite = new Sprite(texture);
-        this.sprite.setSize(texture.getWidth() / 10, texture.getHeight() / 10);
+        this.sprite.setSize(texture.getWidth() / GameConfig.PIXELS_PER_METER, texture.getHeight() / GameConfig.PIXELS_PER_METER);
         this.body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0);
         BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 0f, false);
         this.body.setUserData(this);
@@ -54,17 +54,12 @@ public abstract class BattleShip extends DrawnEntity {
     }
 
     @Override
-    public void update(float delta) {
-        teleportAnimation.update(delta);
-    }
-
-    @Override
     public void render(SpriteBatch spriteBatch) {
         if (teleportAnimation.isTeleporting()) {
             teleportAnimation.render(spriteBatch);
         } else {
             Vector2 centerPos = body.getWorldCenter();
-            sprite.setPosition(centerPos.x - sprite.getWidth() / 2, centerPos.y - sprite.getHeight() / 2);
+            sprite.setPosition(centerPos.x - getHalfWidth(), centerPos.y - getHalfHeight());
             sprite.draw(spriteBatch);
         }
     }
@@ -105,10 +100,6 @@ public abstract class BattleShip extends DrawnEntity {
         return world;
     }
 
-    public float getRadius() {
-        return radius;
-    }
-
     public int getQuadrantPosition() {
         float x = body.getWorldCenter().x;
         float y = body.getWorldCenter().y;
@@ -132,9 +123,17 @@ public abstract class BattleShip extends DrawnEntity {
     }
     
     public boolean isInsideScreen() {
-        float x = body.getWorldCenter().x + radius;
-        float y = body.getWorldCenter().y + radius;
+        float x = body.getWorldCenter().x + sprite.getWidth() / 2;
+        float y = body.getWorldCenter().y + sprite.getHeight() / 2;
         return x >= 0 && x <= GameContext.getInstance().getCamera().viewportWidth && y >= 0 && y <= GameContext.getInstance().getCamera().viewportHeight;
+    }
+
+    public float getHalfWidth() {
+        return sprite.getWidth() / 2;
+    }
+
+    public float getHalfHeight() {
+        return sprite.getHeight() / 2;
     }
 
     public int isHedgeOfScreen() {
@@ -146,14 +145,16 @@ public abstract class BattleShip extends DrawnEntity {
         float maxX = camera.position.x + camera.viewportWidth / 2;
         float minY = camera.position.y - camera.viewportHeight / 2;
         float maxY = camera.position.y + camera.viewportHeight / 2;
-    
-        if (position.x - radius <= minX) {
+        float halfWidth = sprite.getWidth() / 2;
+        float halfHeight = sprite.getHeight() / 2;
+
+        if (position.x - halfWidth <= minX) {
             return 1; 
-        } else if (position.x + radius >= maxX) {
+        } else if (position.x + halfWidth >= maxX) {
             return 2; 
-        } else if (position.y - radius <= minY) {
+        } else if (position.y - halfHeight <= minY) {
             return 3; 
-        } else if (position.y + radius >= maxY) {
+        } else if (position.y + halfHeight >= maxY) {
             return 4; 
         }
         return 0; 

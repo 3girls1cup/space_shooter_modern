@@ -1,7 +1,5 @@
 package com.space_shooter.game.weapons;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.space_shooter.game.ennemies.EnnemyShip;
 import com.space_shooter.game.shared.entities.BattleShip;
@@ -10,8 +8,6 @@ import com.space_shooter.game.shared.entities.DrawnEntity;
 public abstract class Projectile extends DrawnEntity {
     protected float speed;
     protected int damage;
-    protected Texture texture;
-    protected Sprite sprite;
     protected float radius;
     protected BattleShip owner;
     protected boolean isDestroyedOnCollision = true;

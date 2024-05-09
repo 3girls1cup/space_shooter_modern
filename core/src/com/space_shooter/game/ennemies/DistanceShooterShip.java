@@ -17,15 +17,10 @@ import com.space_shooter.game.weapons.BasicWeapon;
 
 public class DistanceShooterShip extends EnnemyShip {
     static private final float SAFE_DISTANCE = 30f;
-    static private final float MIN_STATIC_DELAY = 1.0f;
-    static private final float MAX_STATIC_DELAY = 3.0f;
     static private final float MIN_DELAY_BETWEEN_SHOTS = 3.0f;
     static private final float MAX_DELAY_BETWEEN_SHOTS = 10.0f;
     private long lastShotTime = TimeUtils.millis();
     private long nextShotDelay;
-    private boolean isStatic = false;
-    private long staticTimer = TimeUtils.millis();
-    private long staticNextDelay;
     private boolean arrivedInScreen = false;
     private Vector2 playerPosition;
     private Vector2 targetPosition = new Vector2();
@@ -38,7 +33,6 @@ public class DistanceShooterShip extends EnnemyShip {
         super(GameAssets.getInstance().getTextureInstance(GameAssets.DISTANCE_SHOOTER), position, "distance_shooter");
         this.color = Color.YELLOW;
         this.health = GameConstants.DISTANCE_SHOOTER_HEALTH;
-        this.radius = GameConstants.DISTANCE_SHOOTER_RADIUS;
         this.scoreValue = GameConstants.DISTANCE_SHOOTER_SCORE_VALUE;
         this.speed = (float) (Math.random()
                 * (GameConstants.DISTANCE_SHOOTER_MAX_SPEED - GameConstants.DISTANCE_SHOOTER_MIN_SPEED)
@@ -47,7 +41,6 @@ public class DistanceShooterShip extends EnnemyShip {
         this.playerPosition = GameContext.getInstance().getPlayer().getBody().getWorldCenter();
 
         nextShotDelay = (long) MathUtils.random(MIN_DELAY_BETWEEN_SHOTS, MAX_DELAY_BETWEEN_SHOTS) * 1000L;
-        staticNextDelay = (long) MathUtils.random(MIN_STATIC_DELAY, MAX_STATIC_DELAY) * 1000L;
     }
 
     private void shootTowardPlayer() {
@@ -106,25 +99,16 @@ public class DistanceShooterShip extends EnnemyShip {
             }
             updateBody();
         }
-        updateStaticTimer();
     }
 
-    private void updateStaticTimer() {
-        if (isStatic) {
-            if (TimeUtils.millis() - staticTimer > staticNextDelay) {
-                isStatic = false;
-                staticTimer = TimeUtils.millis();
-                staticNextDelay = (long) MathUtils.random(MIN_STATIC_DELAY, MAX_STATIC_DELAY) * 1000L;
-            }
-        }
+    private Vector2 getDirectionToTargetPosition() {
+        return new Vector2(targetPosition.x - body.getWorldCenter().x, targetPosition.y - body.getWorldCenter().y);
     }
 
     private void goToTargetPosition() {
-        Vector2 direction = new Vector2(targetPosition.x - body.getWorldCenter().x,
-                targetPosition.y - body.getWorldCenter().y);
+        Vector2 direction = getDirectionToTargetPosition();
         if (direction.len() < 1f) {
             setTargetPosition(playerPosition, SAFE_DISTANCE);
-            isStatic = true;
         }
         velocity.set(direction.nor());
     }
@@ -141,8 +125,6 @@ public class DistanceShooterShip extends EnnemyShip {
                 velocity.set(directionToPlayer).scl(-1).nor();
             }
             needNewTargetPosition = true;
-        } else if (isStatic) {
-            velocity.set(0, 0);
         } else {
             if (needNewTargetPosition || !isTrajectoryInSafeZone()) {
                 setTargetPosition(playerPosition, SAFE_DISTANCE);
@@ -232,7 +214,7 @@ public class DistanceShooterShip extends EnnemyShip {
     @Override 
     public void onCollision(DrawnEntity entity) {
         if (entity instanceof Wall) {
-            startTeleportationAnimation(body.getLinearVelocity());
+            startTeleportationAnimation(getDirectionToTargetPosition());
         }
 
         if (entity instanceof EnnemyShip) {

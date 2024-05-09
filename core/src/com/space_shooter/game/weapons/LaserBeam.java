@@ -1,16 +1,12 @@
 package com.space_shooter.game.weapons;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConfig;
@@ -20,7 +16,6 @@ import com.space_shooter.game.shared.utils.BodyFactory;
 
 public class LaserBeam extends Projectile {
     private static final int FRAME_COLS = 4, FRAME_ROWS = 3;
-    private float width;
     private float length;
     private float angle;
     private Animation<TextureRegion> animation;
@@ -33,7 +28,6 @@ public class LaserBeam extends Projectile {
         this.isDestroyedOnCollision = false;
         this.owner = owner;
         this.damage = damage;
-        this.width = width;
         this.length = GameConfig.SCREEN_DIAGONAL;
         this.body = BodyFactory.getInstance().createBody(owner.getWorld(), BodyType.DynamicBody,
                 owner.getBody().getWorldCenter().x,
@@ -70,7 +64,7 @@ public class LaserBeam extends Projectile {
         float beamOffsetY = length / 2 * MathUtils.sin(angle);
 
         Vector2 beamStartPos = new Vector2(ownerPosition)
-                .add(beamOffsetX, beamOffsetY);   
+                .add(beamOffsetX, beamOffsetY);  
         
         sprite.setPosition(ownerPosition.x - sprite.getWidth() / 2, ownerPosition.y);
         sprite.setRotation(angle * MathUtils.radiansToDegrees - 90);

@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.space_shooter.game.core.GameConstants;
-import com.space_shooter.game.shared.entities.BattleShip;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
@@ -15,18 +14,15 @@ public class TeleportAnimation {
     private float teleportAnimationTimer;
     private Vector2 teleportStart;
     private Vector2 teleportEnd;
-    private Vector2 teleportEndBodyCorrection;
     private Array<Sprite> teleportSprites;
     private boolean isTeleporting;
     private Sprite baseSprite;
-    private boolean a;
-
     public TeleportAnimation(Sprite baseSprite, Body body) {
         this.body = body;
         this.teleportAnimationTimer = 0f;
         this.teleportStart = new Vector2();
         this.teleportEnd = new Vector2();
-        this.teleportEndBodyCorrection = new Vector2();
+        new Vector2();
         this.teleportSprites = new Array<>();
         this.baseSprite = baseSprite;
         this.isTeleporting = false;
@@ -41,24 +37,9 @@ public class TeleportAnimation {
 
     public void startTeleportation(Vector2 start, Vector2 end) {
         this.teleportStart.set(start);
-        this.teleportEndBodyCorrection.set(end);
         this.teleportAnimationTimer = 0f;
         this.isTeleporting = true;
-        a = true;
-
-        float angle = body.getAngle();
-            
-        float cos = MathUtils.cos(angle);
-        float sin = MathUtils.sin(angle);
-
-        float bx = -body.getLocalCenter().x * cos + body.getLocalCenter().y * sin;
-        float by = -body.getLocalCenter().x * sin - body.getLocalCenter().y * cos;
-
-        float sx = -baseSprite.getOriginX() * cos + baseSprite.getOriginY() * sin;
-        float sy = -baseSprite.getOriginX() * sin - baseSprite.getOriginY() * cos;
-
-        this.teleportEndBodyCorrection.set(bx, by);
-        this.teleportEnd.set(end.x + sx, end.y + sy);
+        this.teleportEnd.set(end);
     }
 
     public void update(float deltaTime) {
@@ -67,9 +48,15 @@ public class TeleportAnimation {
         teleportAnimationTimer += deltaTime;
         if (teleportAnimationTimer >= GameConstants.TELEPORT_ANIMATION_DURATION) {
             isTeleporting = false;
+            float angle = body.getAngle();
+            
+            float cos = MathUtils.cos(angle);
+            float sin = MathUtils.sin(angle);
+    
+            float bx = -body.getLocalCenter().x * cos + body.getLocalCenter().y * sin;
+            float by = -body.getLocalCenter().x * sin - body.getLocalCenter().y * cos;
 
-
-            body.setTransform(teleportEnd.add(teleportEndBodyCorrection), body.getAngle());
+            body.setTransform(teleportEnd.add(bx, by), angle);
         }
     }
 

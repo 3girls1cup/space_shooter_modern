@@ -31,7 +31,6 @@ public class PlayerShip extends BattleShip {
         this.speed = GameConstants.PLAYER_SHIP_SPEED;
         this.camera = GameContext.getInstance().getCamera();
         this.health = GameConstants.PLAYER_SHIP_HEALTH;
-        this.radius = GameConstants.PLAYER_SHIP_RADIUS;
         this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
         this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
         this.body.setTransform(body.getWorldCenter(), -90 * MathUtils.degreesToRadians);
@@ -46,14 +45,12 @@ public class PlayerShip extends BattleShip {
         } else {
             handleInput();
 
-            Vector2 position = body.getWorldCenter();
-            float halfWidth = radius;
-            float halfHeight = radius;
+            Vector2 position = body.getPosition();
 
-            float minX = camera.position.x - camera.viewportWidth / 2 + halfWidth;
-            float maxX = camera.position.x + camera.viewportWidth / 2 - halfWidth;
-            float minY = camera.position.y - camera.viewportHeight / 2 + halfHeight;
-            float maxY = camera.position.y + camera.viewportHeight / 2 - halfHeight;
+            float minX = camera.position.x - camera.viewportWidth / 2;
+            float maxX = camera.position.x + camera.viewportWidth / 2 - sprite.getHeight();
+            float minY = camera.position.y - camera.viewportHeight / 2 + sprite.getWidth();
+            float maxY = camera.position.y + camera.viewportHeight / 2;
 
             float clampedX = Math.max(minX, Math.min(position.x, maxX));
             float clampedY = Math.max(minY, Math.min(position.y, maxY));

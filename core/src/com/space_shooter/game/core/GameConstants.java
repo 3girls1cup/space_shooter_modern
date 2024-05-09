@@ -21,8 +21,8 @@ public class GameConstants {
     static public int DISTANCE_SHOOTER_SCORE_VALUE = 100;
     static public float DISTANCE_SHOOTER_RADIUS = 2f;
     static public int DISTANCE_SHOOTER_HEALTH = 3;
-    static public float DISTANCE_SHOOTER_MIN_SPEED = 10f;
-    static public float DISTANCE_SHOOTER_MAX_SPEED = 20f;
+    static public float DISTANCE_SHOOTER_MIN_SPEED = 8f;
+    static public float DISTANCE_SHOOTER_MAX_SPEED = 15f;
     static public float DISTANCE_SHOOTER_SCREEN_MARGIN = 10f;
     // Paramétres pour les armes
     static public String LASER_NAME = "Laser";

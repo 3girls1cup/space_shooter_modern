@@ -1,5 +1,7 @@
 package com.space_shooter.game.shared.entities;
 
+
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -9,6 +11,7 @@ public abstract class DrawnEntity {
     protected boolean markedForRemoval = false;
     protected Body body;
     public Sprite sprite;
+    protected Texture texture;
 
     public Sprite getSprite() {
         if (sprite == null) {

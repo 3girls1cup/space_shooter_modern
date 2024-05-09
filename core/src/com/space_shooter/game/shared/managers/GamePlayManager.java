@@ -10,14 +10,11 @@ public class GamePlayManager {
     private int enemiesKilled;
     private int enemiesSpawned;
     private HashMap<String, Integer> enemies;
-    private boolean gamePaused;
-
     public GamePlayManager() {
         this.score = 0;
         this.enemiesKilled = 0;
         this.enemiesSpawned = 0;
         this.enemies = new HashMap<String, Integer>();
-        this.gamePaused = false;
     }
 
     public void notifyEnnemySpawned(EnnemyShip enemyType) {

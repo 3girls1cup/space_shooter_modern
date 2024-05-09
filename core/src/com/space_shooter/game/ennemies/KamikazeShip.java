@@ -1,18 +1,11 @@
 package com.space_shooter.game.ennemies;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.physics.box2d.World;
 import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
-import com.space_shooter.game.shared.utils.BodyFactory;
 
 public class KamikazeShip extends EnnemyShip{
 
@@ -23,7 +16,6 @@ public class KamikazeShip extends EnnemyShip{
         this.color = Color.BLUE;
         this.scoreValue = GameConstants.KAMIKAZE_SHIP_SCORE_VALUE;
         this.health = GameConstants.KAMIKAZE_SHIP_HEALTH;
-        this.radius = GameConstants.KAMIKAZE_SHIP_RADIUS;
         this.speed = (float) (Math.random() * (GameConstants.KAMIKAZE_SHIP_MAX_SPEED - GameConstants.KAMIKAZE_SHIP_MIN_SPEED) + GameConstants.KAMIKAZE_SHIP_MIN_SPEED);
         this.playerPosition = GameContext.getInstance().getPlayer().getBody().getWorldCenter();
         this.body.setFixedRotation(true);
@@ -32,6 +24,10 @@ public class KamikazeShip extends EnnemyShip{
     @Override
     public void update(float delta) {
         super.update(delta);
+        float angle = getRealisticRotationAngle(delta);
+        if (angle != -500) {
+            sprite.setRotation(angle);
+        }
         if (teleportAnimation.isTeleporting()) {
             teleportAnimation.update(delta);
         } else if (playerPosition != null) {

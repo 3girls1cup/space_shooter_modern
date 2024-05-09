@@ -1,33 +1,47 @@
 package com.space_shooter.game.walls;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 import com.space_shooter.game.shared.utils.BodyFactory;
 
 public class Wall extends DrawnEntity {
+    private static final float SECURITY_ADDED_WIDTH = 10f;
     private float width;
-    private float height;
-    private Color color;
     private float speed;
 
     public Wall(float height, int angle, float speed) {
-        this.width = GameConfig.SCREEN_DIAGONAL;
+        this.width = GameConfig.SCREEN_DIAGONAL + SECURITY_ADDED_WIDTH;
         this.speed = speed;
-        this.height = height;
-        this.color = getRandomColor();
         this.body = BodyFactory.getInstance().createBody(GameContext.getInstance().getWorld(), BodyType.KinematicBody, getInitialPosition(angle).x, getInitialPosition(angle).y, false, angle);
         this.body.setUserData(this);
-
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2, height / 2);
         BodyFactory.getInstance().createFixture(body, shape, 1f, 0f, 1f, false);
+        texture = GameAssets.getInstance().getTextureInstance(GameAssets.WALL);
+        texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        sprite = new Sprite(texture);
+        sprite.setSize(width, height);
+        sprite.setOriginCenter();
+
+        int textureWidth = texture.getWidth() / 3;
+        int textureHeight = texture.getHeight();
+        float uStart = MathUtils.random(0, textureWidth - width) / textureWidth;
+        float vStart = MathUtils.random(0, textureHeight - height) / textureHeight;
+        float uEnd = (uStart * textureWidth + width) / textureWidth;
+        float vEnd = (vStart * textureHeight + height) / textureHeight;
+
+        sprite.setRegion((int) (uStart * textureWidth), (int) (vStart * textureHeight), (int) width, (int) height);
+        sprite.setU2(uEnd);
+        sprite.setV2(vEnd);
     }
 
     @Override
@@ -39,22 +53,13 @@ public class Wall extends DrawnEntity {
         float velocityX = speed * MathUtils.cos(body.getAngle() + MathUtils.PI / 2);
         float velocityY = speed * MathUtils.sin(body.getAngle() + MathUtils.PI / 2);
         body.setLinearVelocity(velocityX, velocityY);
+        sprite.setPosition(body.getWorldCenter().x - sprite.getWidth() / 2, body.getWorldCenter().y - sprite.getHeight() / 2);
+        sprite.setRotation(body.getAngle() * MathUtils.radiansToDegrees);
     }
 
     @Override
-    public void render(ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(color);
-        shapeRenderer.identity();
-        shapeRenderer.translate(body.getWorldCenter().x, body.getWorldCenter().y, 0);
-        shapeRenderer.rotate(0, 0, 1, body.getAngle() * MathUtils.radiansToDegrees);
-        shapeRenderer.rect(-width / 2, -height / 2, width, height);
-        shapeRenderer.identity();
-        shapeRenderer.end();
-    }
-
-    private Color getRandomColor() {
-        return new Color(MathUtils.random(), MathUtils.random(), MathUtils.random(), 1);
+    public void render(SpriteBatch spriteBatch) {
+        sprite.draw(spriteBatch);
     }
 
     private Vector2 getInitialPosition(int angle) {

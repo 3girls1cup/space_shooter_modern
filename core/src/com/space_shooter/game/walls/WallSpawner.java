@@ -5,28 +5,28 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class WallSpawner {
     private long lastSpawnTime;
+    private long nextSpawnDelay;
     private float minSpawnDelay = 10.0f; 
-    private float maxSpawnDelay = 100.0f;
-    public boolean test = false;
+    private float maxSpawnDelay = 20.0f;
 
     public WallSpawner() {
-        lastSpawnTime = TimeUtils.nanoTime();
+        lastSpawnTime = TimeUtils.millis();
     }
     
     public void update(float delta) {
-        if (true) return;
-        if (TimeUtils.nanoTime() - lastSpawnTime > MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1_000_000_000L) {
+        if (TimeUtils.millis() - lastSpawnTime > nextSpawnDelay) {
             spawnWall();
-            lastSpawnTime = TimeUtils.nanoTime();
+            lastSpawnTime = TimeUtils.millis();
+            nextSpawnDelay = (long) MathUtils.random(minSpawnDelay, maxSpawnDelay) * 1000L;
         }
     }
 
     private void spawnWall() {
         int randomAngle = MathUtils.random(0, 180);
-        new Wall(1.0f, randomAngle, getRandomSpeed());
+        new Wall(3.0f, randomAngle, getRandomSpeed());
     }
 
     private float getRandomSpeed() { //TODO : ajuster à la difficulté
-        return MathUtils.random(5.0f, 10.0f);
+        return MathUtils.random(3.0f, 7.0f);
     }
 }

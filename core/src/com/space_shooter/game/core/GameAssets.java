@@ -21,6 +21,7 @@ public class GameAssets {
     public static String BASIC_ICON = "weapons/Basic.png";
     public static String BASIC_WEAPON_PLAYER = "weapons/BasicPlayer.png";
     public static String LASER_BEAM = "weapons/texture_laser.png";
+    public static String WALL = "wall/texture_wall.png";
     private static GameAssets instance;
     private HashMap<String, Class<?>> assets;
     private AssetManager assetManager;
@@ -38,6 +39,7 @@ public class GameAssets {
         assets.put(DISTANCE_SHOOTER, Texture.class);
         assets.put(BASIC_WEAPON_PLAYER, Texture.class);
         assets.put(LASER_BEAM, Texture.class);
+        assets.put(WALL, Texture.class);
 
         loadAssets();
         assetManager.finishLoading();

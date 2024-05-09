@@ -14,7 +14,7 @@ public abstract class EnnemyShip extends BattleShip {
 
     public EnnemyShip(Texture texture, Vector2 spawnPosition, String fileName) {
         super(texture, spawnPosition, fileName);
-        this.teleportDistance = 10f;
+        this.teleportDistance = 40f;
     }
 
     public int getScoreValue() {
@@ -34,13 +34,6 @@ public abstract class EnnemyShip extends BattleShip {
         }
     }
 
-    @Override
-    public void update(float delta) {
-        float angle = getRealisticRotationAngle(delta);
-        if (angle != -500) {
-            sprite.setRotation(angle);
-        }
-    }
 
     protected float getRealisticRotationAngle(float delta) {
         Vector2 velocity = body.getLinearVelocity();

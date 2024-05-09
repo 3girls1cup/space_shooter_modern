@@ -22,12 +22,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.space_shooter.game.core.GameConfig;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.core.SpaceShooter;
-import com.space_shooter.game.player.PlayerShip;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 import com.space_shooter.game.shared.utils.GameContactListener;
 
 public class GameScreen implements Screen {
-    private SpaceShooter game;
     private OrthographicCamera camera;
     private Viewport viewport;
     private World world;
@@ -38,7 +36,6 @@ public class GameScreen implements Screen {
     private Array<Body> bodies;
 
     public GameScreen(SpaceShooter game) {
-        this.game = game;
         this.batch = game.batch;
         this.backgroundTexture = new Texture("background.jpg");
         camera = new OrthographicCamera();
@@ -142,10 +139,7 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
-        PlayerShip player = GameContext.getInstance().getPlayer();
-        if (player != null) {
-            camera.position.set(GameConfig.WORLD_WIDTH / 2, player.getBody().getWorldCenter().y, 0);
-        }
+        camera.position.set(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2, 0);
     }
     
     @Override
