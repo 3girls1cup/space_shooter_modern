@@ -36,7 +36,8 @@ public class BodyFactory {
         return body;
     }
 
-    public Fixture createFixture(Body body, Shape shape, float density, float friction, float restitution, boolean isSensor) {
+    public Fixture createFixture(Body body, Shape shape, float density, float friction, float restitution,
+            boolean isSensor) {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = density;
@@ -48,7 +49,8 @@ public class BodyFactory {
         return fixture;
     }
 
-    public void attachComplexeFixture(Body body, String name, float scale, float density, float friction, float restitution, boolean isSensor) {
+    public void attachComplexeFixture(Body body, String name, float scale, float density, float friction,
+            float restitution, boolean isSensor) {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.density = density;
         fixtureDef.friction = friction;

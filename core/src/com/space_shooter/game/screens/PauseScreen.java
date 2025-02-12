@@ -1,7 +1,6 @@
 package com.space_shooter.game.screens;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.function.Function;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -13,34 +12,53 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.space_shooter.game.core.AudioManager;
 import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.SpaceShooter;
 import com.space_shooter.game.shared.utils.VisualDebugger;
 
 public class PauseScreen implements Screen {
-    private Stage stage;
+    private Stage stage = new Stage(new ScreenViewport());
     private SpaceShooter game;
     private GameScreen gameScreen;
-    private Skin skin;
+    private Skin skin = GameAssets.getInstance().getSkinInstance(GameAssets.SKIN_SCI_FI);
     private boolean isMusicEnabled = true;
     private boolean isSoundEnabled = true;
-    private boolean isDebugBodyEnabled;
-    private boolean isDebugDistanceShooterEnabled;
+    private boolean isDebugBodyEnabled = VisualDebugger.getInstance().isDebuggingBodyOutline();
+    private boolean isDebugDistanceShooterEnabled = VisualDebugger.getInstance().isDebuggingDistanceShooter();
+
+    public class ButtonData {
+        public float originalWidth;
+        public float originalHeight;
+
+        public ButtonData(float width, float height) {
+            this.originalWidth = width;
+            this.originalHeight = height;
+        }
+    }
 
     public PauseScreen(SpaceShooter game, GameScreen gameScreen) {
         this.game = game;
         this.gameScreen = gameScreen;
-        this.stage = new Stage(new ScreenViewport());
-        this.skin = GameAssets.getInstance().getSkinInstance(GameAssets.SKIN_SCI_FI);
-        isDebugBodyEnabled = VisualDebugger.getInstance().isDebuggingBodyOutline();
-        isDebugDistanceShooterEnabled = VisualDebugger.getInstance().isDebuggingDistanceShooter();
         Gdx.input.setInputProcessor(stage);
+    }
+
+    class Settings {
+        String name;
+        Function<Boolean, Void> action;
+        boolean state;
+
+        public Settings(String name, boolean state, Function<Boolean, Void> action) {
+            this.name = name;
+            this.action = action;
+            this.state = state;
+        }
     }
 
     @Override
@@ -55,19 +73,20 @@ public class PauseScreen implements Screen {
         mainTable.add(createInstructionsTable()).expand().fill();
         mainTable.add(createButtonsTable()).expand().fill();
         stage.addActor(mainTable);
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     private Table createInstructionsTable() {
         Table table = new Table();
         String[] infos = {
-            "Esc - Pause",
-            "A - Aller à gauche",
-            "D - Aller à droite",
-            "W - Aller en haut",
-            "S - Aller en bas",
-            "E - Changer d'arme",
-            "Clic gauche - Tirer",
-            "Clic droit - Se teleporter"
+                "Esc - Pause",
+                "A - Aller A gauche",
+                "D - Aller A droite",
+                "W - Aller en haut",
+                "S - Aller en bas",
+                "E - Changer d'arme",
+                "Clic gauche - Tirer",
+                "Clic droit - Se teleporter"
         };
         for (String info : infos) {
             addInstruction(table, info, Color.WHITE);
@@ -85,30 +104,30 @@ public class PauseScreen implements Screen {
             label.setColor(Color.RED);
             table.add(label).center().pad(10).row();
         }
-        }
+    }
 
     private Table createButtonsTable() {
         Table table = new Table();
 
-        table.add(createButton("Resume", new ClickListener () {
+        table.add(createButton("Resume", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(gameScreen);
             }
         })).size(200, 80).pad(10).row();
-        table.add(createButton("Quit",  new ClickListener () {
+        table.add(createButton("Quit", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new MainMenuScreen(game));
             }
         })).size(200, 80).pad(10).row();
-        table.add(createButton("Reset", new ClickListener () {
+        table.add(createButton("Reset", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new GameScreen(game));
             }
         })).size(200, 80).pad(10).row();
-        table.add(createButton("Settings", new ClickListener () {
+        table.add(createButton("Settings", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showSettingsTable();
@@ -117,35 +136,51 @@ public class PauseScreen implements Screen {
         return table;
     }
 
-
     private void showSettingsTable() {
         stage.clear();
         Table settingsTable = new Table();
         settingsTable.setFillParent(true);
         settingsTable.add(createSettingsTable()).expand().fill();
         stage.addActor(settingsTable);
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
-
 
     private TextButton createButton(String text, ClickListener listener) {
         TextButton button = new TextButton(text, skin);
+        button.setUserObject(new ButtonData(220, 80));
         button.addListener(listener);
         return button;
     }
 
     private Table createSettingsTable() {
         Table table = new Table(skin);
-        HashMap<String, Boolean> settings = new HashMap<>();
-        settings.put("Music", isMusicEnabled);
-        settings.put("Sound", isSoundEnabled);
-        settings.put("Debug Body", isDebugBodyEnabled);
-        settings.put("Debug Distance Shooter", isDebugDistanceShooterEnabled);
 
-        String[] orderedSettings = {"Music", "Sound", "Debug Body", "Debug Distance Shooter"};
-        for (String setting : orderedSettings) {
-            table.add(createButton(setting, settings.get(setting))).pad(10).row();
+        Array<Settings> settings = new Array<>();
+        settings.add(new Settings("Music", isMusicEnabled, (Boolean state) -> {
+            isMusicEnabled = state;
+            AudioManager.getInstance().setVolumeSoundtrack(isMusicEnabled ? 1 : 0);
+            return null;
+        }));
+        settings.add(new Settings("Sound", isSoundEnabled, (Boolean state) -> {
+            isSoundEnabled = state;
+            AudioManager.getInstance().setVolumeSoundEffects(isSoundEnabled ? 1 : 0);
+            return null;
+        }));
+        settings.add(new Settings("Debug Body", isDebugBodyEnabled, (Boolean state) -> {
+            isDebugBodyEnabled = state;
+            VisualDebugger.getInstance().setDebugBodyOutline(isDebugBodyEnabled);
+            return null;
+        }));
+        settings.add(new Settings("Debug Distance Shooter", isDebugDistanceShooterEnabled, (Boolean state) -> {
+            isDebugDistanceShooterEnabled = state;
+            VisualDebugger.getInstance().setDebugDistanceShooter(isDebugDistanceShooterEnabled);
+            return null;
+        }));
+
+        for (Settings setting : settings) {
+            table.add(createButton(setting)).pad(10).row();
         }
-        
+
         table.add(createButton("Back", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -153,25 +188,28 @@ public class PauseScreen implements Screen {
             }
         })).pad(10).row();
         return table;
-        }
+    }
 
-        private TextButton createButton(String label, boolean initialState) {
-        TextButton button = new TextButton(label + ": " + (initialState ? "On" : "Off"), skin);
-        button.getLabel().setFontScale(0.5f * Gdx.graphics.getWidth() / 800); // Adjust font scale
-        button.setColor(!initialState ? Color.RED : Color.GREEN);
+    private TextButton createButton(Settings setting) {
+        TextButton button = new TextButton(setting.name + ": " + (setting.state ? "On" : "Off"), skin);
+        button.setUserObject(new ButtonData(500, 80));
+        button.getLabel().setFontScale(0.5f * Gdx.graphics.getWidth() / 800);
+        button.setColor(setting.state ? Color.GREEN : Color.RED);
         button.getLabelCell().pad(10);
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-            boolean currentState = button.getText().toString().endsWith("On");
-            button.setText(label + ": " + (!currentState ? "On" : "Off"));
-            button.setColor(currentState ? Color.RED : Color.GREEN);
+                setting.state = !setting.state;
+                button.setText(setting.name + ": " + (setting.state ? "On" : "Off"));
+                button.setColor(setting.state ? Color.GREEN : Color.RED);
+                setting.action.apply(setting.state);
             }
         });
-        return button;
-        }
 
-        private void handleInput(float delta) {
+        return button;
+    }
+
+    private void handleInput(float delta) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setScreen(gameScreen);
         }
@@ -188,21 +226,40 @@ public class PauseScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
-        float scale = Math.min(width, height) / 800f;
-        stage.getActors().forEach(actor -> {
-            if (actor instanceof TextButton) {
-                ((TextButton) actor).getLabel().setFontScale(scale);
-            } else if (actor instanceof Label) {
-                ((Label) actor).setFontScale(scale);
+        float scale = Math.min(width, height) / 640f;
+        Array<Actor> actors = stage.getActors();
+        System.out.println(scale);
+        for (Actor actor : actors) {
+            if (actor instanceof Table) {
+                Table table = (Table) actor;
+                resizeAllCells(table, scale);
             }
-        });
+        }
+    }
+
+    private void resizeAllCells(Table table, float scale) {
+        for (Cell<?> cell : table.getCells()) {
+            if (cell.getActor() instanceof TextButton) {
+                TextButton button = (TextButton) cell.getActor();
+                ButtonData data = (ButtonData) button.getUserObject();
+                cell.size(data.originalWidth * scale, data.originalHeight * scale);
+                button.getLabel().setFontScale(1f * scale);
+            } else if (cell.getActor() instanceof Table) {
+                resizeAllCells((Table) cell.getActor(), scale);
+            } else if (cell.getActor() instanceof Label) {
+                Label label = (Label) cell.getActor();
+                label.setFontScale(1f * scale);
+            }
+        }
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void hide() {

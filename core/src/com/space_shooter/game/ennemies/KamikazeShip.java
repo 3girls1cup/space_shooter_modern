@@ -6,19 +6,23 @@ import com.badlogic.gdx.math.Vector2;
 import com.space_shooter.game.core.GameAssets;
 import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
+import com.space_shooter.game.shared.entities.DrawnEntity;
+import com.space_shooter.game.walls.Wall;
 
-public class KamikazeShip extends EnnemyShip{
-
+public class KamikazeShip extends EnnemyShip {
     private Vector2 playerPosition;
+    private float targetAngle;
+    private float rotationSpeed = 2f;
 
-    public KamikazeShip(Vector2 position) {
-        super(GameAssets.getInstance().getTextureInstance(GameAssets.KAMIKAZE), position, "kamikaze");
+    public KamikazeShip(Vector2 position, int health) {
+        super(GameAssets.getInstance().getTextureInstance(GameAssets.KAMIKAZE), position, "kamikaze", health);
         this.color = Color.BLUE;
         this.scoreValue = GameConstants.KAMIKAZE_SHIP_SCORE_VALUE;
-        this.health = GameConstants.KAMIKAZE_SHIP_HEALTH;
-        this.speed = (float) (Math.random() * (GameConstants.KAMIKAZE_SHIP_MAX_SPEED - GameConstants.KAMIKAZE_SHIP_MIN_SPEED) + GameConstants.KAMIKAZE_SHIP_MIN_SPEED);
+        this.health = health * GameConstants.KAMIKAZE_SHIP_HEALTH_FACTOR;
+        this.speed = (float) Math.random()
+                * (GameConstants.KAMIKAZE_SHIP_MAX_SPEED - GameConstants.KAMIKAZE_SHIP_MIN_SPEED)
+                + GameConstants.KAMIKAZE_SHIP_MIN_SPEED;
         this.playerPosition = GameContext.getInstance().getPlayer().getBody().getWorldCenter();
-        this.body.setFixedRotation(true);
     }
 
     @Override
@@ -35,17 +39,45 @@ public class KamikazeShip extends EnnemyShip{
         }
     }
 
+    protected float getRealisticRotationAngle(float delta) {
+        Vector2 velocity = body.getLinearVelocity();
+
+        if (!velocity.isZero()) {
+            targetAngle = velocity.angleDeg() - 90;
+
+            float currentAngle = sprite.getRotation();
+            float angleDifference = targetAngle - currentAngle;
+
+            while (angleDifference < -180)
+                angleDifference += 360;
+            while (angleDifference > 180)
+                angleDifference -= 360;
+
+            return currentAngle + angleDifference * rotationSpeed * delta;
+        }
+        return -500;
+    }
+
     private void moveTowardPlayer(float delta) {
         Vector2 direction = new Vector2(playerPosition).sub(body.getWorldCenter());
 
         if (direction.len() > GameConstants.KAMIKAZE_SHIP_CLOSE_DISTANCE) {
             float angle = getRealisticRotationAngle(delta);
-            
+
             if (angle != -500) {
-                body.setTransform(body.getWorldCenter(), angle * MathUtils.degreesToRadians);
+                body.setTransform(body.getPosition(), angle * MathUtils.degreesToRadians);
             }
         }
 
         body.setLinearVelocity(direction.nor().scl(speed));
+    }
+
+    @Override
+    public void onCollision(DrawnEntity other) {
+        super.onCollision(other);
+        if (other instanceof Wall) {
+            Vector2 direction = body.getLinearVelocity().nor();
+            startTeleportationAnimation(direction.scl(teleportDistance));
+        }
     }
 }

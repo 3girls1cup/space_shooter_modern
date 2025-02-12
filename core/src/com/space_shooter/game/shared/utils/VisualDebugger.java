@@ -42,15 +42,17 @@ public class VisualDebugger {
         return debugDistanceShooter;
     }
 
-    public void drawDistanceShooterDebug(SpriteBatch batch, Vector2 bodyPosition, Vector2 targetPosition, Vector2 playerPosition, Vector2 snapshotPos, Vector2 maxAngle, Vector2 minAngle, float SAFE_DISTANCE) {
-        
-        if (!debugDistanceShooter) return;
+    public void drawDistanceShooterDebug(SpriteBatch batch, Vector2 bodyPosition, Vector2 targetPosition,
+            Vector2 playerPosition, Vector2 snapshotPos, Vector2 maxAngle, Vector2 minAngle, float SAFE_DISTANCE) {
+
+        if (!debugDistanceShooter)
+            return;
 
         ShapeRenderer shapeRenderer = GameContext.getInstance().getShapeRenderer();
         batch.end();
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         drawLine(shapeRenderer, bodyPosition, targetPosition, Color.RED);
-        drawLine(shapeRenderer,snapshotPos, maxAngle, Color.GREEN);
+        drawLine(shapeRenderer, snapshotPos, maxAngle, Color.GREEN);
         drawLine(shapeRenderer, snapshotPos, minAngle, Color.GREEN);
         drawCircle(shapeRenderer, playerPosition, SAFE_DISTANCE, Color.YELLOW, ShapeRenderer.ShapeType.Line);
         batch.begin();
@@ -58,7 +60,8 @@ public class VisualDebugger {
 
     public void drawBodyOutline(ShapeRenderer shapeRenderer, SpriteBatch batch, Body body, float delta) {
 
-        if (!debugBodyOutline) return;
+        if (!debugBodyOutline)
+            return;
 
         batch.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -70,7 +73,6 @@ public class VisualDebugger {
                 for (int i = 0; i < polygon.getVertexCount(); i++) {
                     Vector2 vertex = new Vector2();
                     polygon.getVertex(i, vertex);
-                    // Transform local coordinates to world coordinates
                     vertex = body.getWorldPoint(vertex);
                     vertices[i * 2] = vertex.x;
                     vertices[i * 2 + 1] = vertex.y;
@@ -85,9 +87,9 @@ public class VisualDebugger {
             batch.begin();
             return;
         }
-        
+
         drawCircle(shapeRenderer, body.getWorldCenter(), 0.4f, Color.YELLOW, ShapeRenderer.ShapeType.Filled);
-        
+
         batch.begin();
     }
 
@@ -98,10 +100,17 @@ public class VisualDebugger {
         shapeRenderer.end();
     }
 
-    private static void drawCircle(ShapeRenderer shapeRenderer, Vector2 position, float radius, Color color, ShapeRenderer.ShapeType shapeType) {
+    private static void drawCircle(ShapeRenderer shapeRenderer, Vector2 position, float radius, Color color,
+            ShapeRenderer.ShapeType shapeType) {
         shapeRenderer.begin(shapeType);
         shapeRenderer.setColor(color);
         shapeRenderer.circle(position.x, position.y, radius);
         shapeRenderer.end();
+    }
+
+    public void drawLine(SpriteBatch batch, Vector2 fromPosition, Vector2 toPosition, Color color) {
+        batch.end();
+        drawLine(GameContext.getInstance().getShapeRenderer(), fromPosition, toPosition, color);
+        batch.begin();
     }
 }

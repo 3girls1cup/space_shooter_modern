@@ -6,7 +6,7 @@ import com.space_shooter.game.player.PlayerShip;
 
 public class LaserWeapon extends Weapon {
     private LaserBeam currentBeam;
-    
+
     public LaserWeapon(String name, int damage, int ammo, int fireRate, boolean automatic,
             WeaponManager weaponManager) {
         this.name = name;
@@ -50,8 +50,7 @@ public class LaserWeapon extends Weapon {
 
     @Override
     public void fire(Vector2 velocity) {
-            currentBeam = new LaserBeam(projectileWidth, damage, getOwner());
+        currentBeam = new LaserBeam(projectileWidth, damage, getOwner());
     }
-
 
 }

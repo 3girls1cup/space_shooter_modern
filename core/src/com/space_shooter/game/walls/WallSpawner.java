@@ -6,13 +6,15 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class WallSpawner {
     private long lastSpawnTime;
     private long nextSpawnDelay;
-    private float minSpawnDelay = 10.0f; 
-    private float maxSpawnDelay = 20.0f;
+    private float minSpawnDelay = 5.0f;
+    private float maxSpawnDelay = 10.0f;
+    private float minWallSpeed = 6.0f;
+    private float maxWallSpeed = 14.0f;
 
     public WallSpawner() {
         lastSpawnTime = TimeUtils.millis();
     }
-    
+
     public void update(float delta) {
         if (TimeUtils.millis() - lastSpawnTime > nextSpawnDelay) {
             spawnWall();
@@ -26,7 +28,14 @@ public class WallSpawner {
         new Wall(3.0f, randomAngle, getRandomSpeed());
     }
 
-    private float getRandomSpeed() { //TODO : ajuster à la difficulté
-        return MathUtils.random(3.0f, 7.0f);
+    private float getRandomSpeed() {
+        return MathUtils.random(minWallSpeed, maxWallSpeed);
+    }
+
+    public void adjustDifficulty(float delayDivider, float speedMultiplier) {
+        minSpawnDelay /= delayDivider;
+        maxSpawnDelay /= delayDivider;
+        minWallSpeed *= speedMultiplier;
+        maxWallSpeed *= speedMultiplier;
     }
 }

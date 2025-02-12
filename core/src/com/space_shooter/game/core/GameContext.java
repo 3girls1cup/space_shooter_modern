@@ -14,23 +14,24 @@ import com.space_shooter.game.walls.WallSpawner;
 
 public class GameContext {
     private static GameContext instance;
-    
+
     private PlayerShip playerShip;
     private EnnemySpawner ennemySpawner;
     private WallSpawner wallSpawner;
     private GamePlayManager gamePlayManager;
     private GameScreen gameScreen;
     private GameHUD gameHUD;
-    
-    private GameContext() {}
-    
+
+    private GameContext() {
+    }
+
     public static GameContext getInstance() {
         if (instance == null) {
             instance = new GameContext();
         }
         return instance;
     }
-    
+
     public void initialize(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
         playerShip = new PlayerShip();
@@ -39,7 +40,7 @@ public class GameContext {
         gamePlayManager = new GamePlayManager();
         gameHUD = new GameHUD();
     }
-    
+
     public World getWorld() {
         return gameScreen.getWorld();
     }
@@ -76,11 +77,16 @@ public class GameContext {
         return gameScreen.getViewport();
     }
 
+    public ShapeRenderer getShapeRenderer() {
+        return gameScreen.getShapeRenderer();
+    }
+
+    public void endGame() {
+        gameScreen.endGame();
+    }
+
     public void dispose() {
         gameHUD.dispose();
     }
 
-    public ShapeRenderer getShapeRenderer() {
-        return gameScreen.getShapeRenderer();
-    }
 }

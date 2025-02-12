@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.World;
 import com.space_shooter.game.core.GameConfig;
+import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.shared.utils.BodyFactory;
 import com.space_shooter.game.shared.utils.TeleportAnimation;
@@ -20,15 +21,16 @@ public abstract class BattleShip extends DrawnEntity {
     protected World world;
     protected int health;
     protected Color color;
-    protected WeaponManager weaponManager;
-    protected Vector2 velocity;
+    protected WeaponManager weaponManager = new WeaponManager(this);
+    protected Vector2 velocity = new Vector2();
     protected float speed;
     protected float teleportDistance;
-    protected boolean isTeleporting;
-    protected float teleportAnimationTimer;
-    protected Vector2 teleportStart;
-    protected Vector2 teleportEnd;
+    protected boolean isTeleporting = false;
+    protected float teleportAnimationTimer = 0f;
+    protected Vector2 teleportStart = new Vector2();
+    protected Vector2 teleportEnd = new Vector2();
     protected TeleportAnimation teleportAnimation;
+    protected float timeSinceLastCollision = 0f;
     protected Animation<TextureRegion> animation;
     private float animationTimer;
     private TextureRegion currentFrame;
@@ -36,33 +38,26 @@ public abstract class BattleShip extends DrawnEntity {
     private int FRAME_ROWS;
     private int numberOfFrames;
     private float frameDuration;
-    
-
 
     public BattleShip() {
-        this.isTeleporting = false;
-        this.teleportAnimationTimer = 0f;
-        this.teleportStart = new Vector2();
-        this.teleportEnd = new Vector2();
-        this.weaponManager = new WeaponManager(this);
-        this.velocity = new Vector2();
     }
 
     protected void setStaticSprite(Texture texture) {
         sprite = new Sprite(texture);
-        sprite.setSize(texture.getWidth() / GameConfig.PIXELS_PER_METER, texture.getHeight() / GameConfig.PIXELS_PER_METER);
+        sprite.setSize(texture.getWidth() / GameConfig.PIXELS_PER_METER,
+                texture.getHeight() / GameConfig.PIXELS_PER_METER);
         sprite.setOriginCenter();
     }
 
     protected void addBodyToWorld(Vector2 spawnPosition, String fileName) {
         world = GameContext.getInstance().getWorld();
-        body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y, false, 0);
-        BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 0f, false);
+        body = BodyFactory.getInstance().createBody(world, BodyType.DynamicBody, spawnPosition.x, spawnPosition.y,
+                false, 0);
+        BodyFactory.getInstance().attachComplexeFixture(body, fileName, sprite.getWidth(), 1f, 0f, 1f, false);
         body.setUserData(this);
         body.setFixedRotation(true);
         this.teleportAnimation = new TeleportAnimation(sprite, body);
     }
-
 
     protected void setAnimationSprite(int frame_cols, int frame_rows, Texture texture) {
         this.texture = texture;
@@ -70,7 +65,8 @@ public abstract class BattleShip extends DrawnEntity {
         this.FRAME_ROWS = frame_rows;
         this.numberOfFrames = FRAME_COLS * FRAME_ROWS;
         this.frameDuration = 1f / numberOfFrames;
-        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / FRAME_COLS, texture.getHeight() / FRAME_ROWS);
+        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / FRAME_COLS,
+                texture.getHeight() / FRAME_ROWS);
         TextureRegion[] frames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
         for (int i = 0; i < FRAME_ROWS; i++) {
@@ -81,10 +77,9 @@ public abstract class BattleShip extends DrawnEntity {
         animation = new Animation<TextureRegion>(frameDuration, frames);
         TextureRegion firstFrame = new TextureRegion(frames[0]);
         sprite = new Sprite(firstFrame);
-        sprite.setSize(firstFrame.getRegionWidth() / GameConfig.PIXELS_PER_METER, firstFrame.getRegionHeight() / GameConfig.PIXELS_PER_METER);
+        sprite.setSize(firstFrame.getRegionWidth() / GameConfig.PIXELS_PER_METER,
+                firstFrame.getRegionHeight() / GameConfig.PIXELS_PER_METER);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
-
-
     }
 
     @Override
@@ -94,6 +89,7 @@ public abstract class BattleShip extends DrawnEntity {
             currentFrame = animation.getKeyFrame(animationTimer, true);
             sprite.setRegion(currentFrame);
         }
+        timeSinceLastCollision += delta;
     }
 
     @Override
@@ -111,7 +107,7 @@ public abstract class BattleShip extends DrawnEntity {
         if (direction.len() > teleportDistance) {
             direction.setLength(teleportDistance);
         }
-        
+
         Vector2 end = new Vector2(body.getWorldCenter().add(direction));
         teleportAnimation.startTeleportation(body.getWorldCenter(), end);
     }
@@ -127,11 +123,11 @@ public abstract class BattleShip extends DrawnEntity {
     public void takeDamage(int damage) {
         health -= damage;
         if (health <= 0) {
-            died();
+            kill();
         }
     }
 
-    protected void died() {
+    protected void kill() {
         markForRemoval();
     }
 
@@ -161,14 +157,19 @@ public abstract class BattleShip extends DrawnEntity {
         }
     }
 
+    public boolean isTeleporting() {
+        return teleportAnimation.isTeleporting();
+    }
+
     public boolean isOutOfScreen() {
         return isHedgeOfScreen() != 0;
     }
-    
+
     public boolean isInsideScreen() {
         float x = body.getWorldCenter().x + sprite.getWidth() / 2;
         float y = body.getWorldCenter().y + sprite.getHeight() / 2;
-        return x >= 0 && x <= GameContext.getInstance().getCamera().viewportWidth && y >= 0 && y <= GameContext.getInstance().getCamera().viewportHeight;
+        return x >= 0 && x <= GameContext.getInstance().getCamera().viewportWidth && y >= 0
+                && y <= GameContext.getInstance().getCamera().viewportHeight;
     }
 
     public float getHalfWidth() {
@@ -181,9 +182,9 @@ public abstract class BattleShip extends DrawnEntity {
 
     public int isHedgeOfScreen() {
         Vector2 position = body.getWorldCenter();
-    
+
         OrthographicCamera camera = GameContext.getInstance().getCamera();
-    
+
         float minX = camera.position.x - camera.viewportWidth / 2;
         float maxX = camera.position.x + camera.viewportWidth / 2;
         float minY = camera.position.y - camera.viewportHeight / 2;
@@ -192,15 +193,22 @@ public abstract class BattleShip extends DrawnEntity {
         float halfHeight = sprite.getHeight() / 2;
 
         if (position.x - halfWidth <= minX) {
-            return 1; 
+            return 1;
         } else if (position.x + halfWidth >= maxX) {
-            return 2; 
+            return 2;
         } else if (position.y - halfHeight <= minY) {
-            return 3; 
+            return 3;
         } else if (position.y + halfHeight >= maxY) {
-            return 4; 
+            return 4;
         }
-        return 0; 
+        return 0;
     }
-    
+
+    @Override
+    public void onCollision(DrawnEntity otherEntity) {
+        if (isTeleporting() || timeSinceLastCollision < GameConstants.TELEPORT_COOLDOWN) {
+            return;
+        }
+        timeSinceLastCollision = 0f;
+    }
 }

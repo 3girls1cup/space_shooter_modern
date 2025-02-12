@@ -21,21 +21,24 @@ import com.space_shooter.game.weapons.LaserWeapon;
 public class PlayerShip extends BattleShip {
     private Camera camera;
     private float timeSinceLastTeleport = 0f;
-    private float timeSinceLastCollision = 0f;
     private boolean isShooting = false;
 
     public PlayerShip() {
-        // super(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP), new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
-        super();
-        this.teleportDistance = 100f;
+        this.teleportDistance = 30f;
         this.color = Color.RED;
         this.speed = GameConstants.PLAYER_SHIP_SPEED;
         this.camera = GameContext.getInstance().getCamera();
         this.health = GameConstants.PLAYER_SHIP_HEALTH;
-        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
-        this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this.weaponManager));
+        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 100f, 0.3f,
+                GameConstants.PLAYER_BASIC_PROJECTILE_FIXTURE_NAME,
+                GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), GameConstants.BASIC_DAMAGE,
+                -1, 500, true,
+                this.weaponManager));
+        this.weaponManager.addWeapon(new LaserWeapon(GameConstants.LASER_NAME, GameConstants.LASER_DAMAGE, 50, 100,
+                true, this.weaponManager));
         setStaticSprite(GameAssets.getInstance().getTextureInstance(GameAssets.PLAYER_SHIP));
-        // setAnimationSprite(7,3, GameAssets.getInstance().getTextureInstance(GameAssets.ANIMATED_PLAYER_SHIP));
+        // setAnimationSprite(7,3,
+        // GameAssets.getInstance().getTextureInstance(GameAssets.ANIMATED_PLAYER_SHIP));
         addBodyToWorld(new Vector2(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2), "player_ship");
         this.body.setTransform(body.getWorldCenter(), -90 * MathUtils.degreesToRadians);
 
@@ -44,11 +47,12 @@ public class PlayerShip extends BattleShip {
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         if (teleportAnimation.isTeleporting()) {
             teleportAnimation.update(delta);
         } else {
             super.update(delta);
-            
+
             handleInput();
 
             Vector2 position = body.getPosition();
@@ -67,7 +71,6 @@ public class PlayerShip extends BattleShip {
 
             timeSinceLastTeleport += delta;
         }
-        timeSinceLastCollision += delta;
     }
 
     public void handleInput() {
@@ -140,18 +143,32 @@ public class PlayerShip extends BattleShip {
     }
 
     @Override
-    public void onCollision(DrawnEntity entity) {
-        if (entity instanceof Wall) {
-            if (timeSinceLastCollision > GameConstants.COLLISION_COOLDOWN) {
-                takeDamage(1);
-                timeSinceLastCollision = 0f;
-            }
-        } else if (entity instanceof EnnemyShip) {
-            takeDamage(1);
-            timeSinceLastCollision = 0f;
+    public void onCollision(DrawnEntity other) {
+        super.onCollision(other);
 
-            EnnemyShip ennemyShip = (EnnemyShip) entity;
-            ennemyShip.takeDamage(1);
+        if (other instanceof Wall) {
+            takeDamage(GameConstants.COLLISION_DAMAGE);
+        } else if (other instanceof EnnemyShip) {
+            EnnemyShip ennemyShip = (EnnemyShip) other;
+
+            if (ennemyShip.isMarkedForRemoval() || ennemyShip.isTeleporting()) {
+                return;
+            }
+
+            takeDamage(GameConstants.COLLISION_DAMAGE);
+            ennemyShip.kill();
         }
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        super.takeDamage(damage);
+        GameContext.getInstance().getGameHUD().updateHealthBar(health);
+    }
+
+    @Override
+    public void kill() {
+        super.kill();
+        GameContext.getInstance().endGame();
     }
 }

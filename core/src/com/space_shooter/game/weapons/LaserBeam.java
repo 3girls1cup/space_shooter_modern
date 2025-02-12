@@ -39,7 +39,8 @@ public class LaserBeam extends Projectile {
         BodyFactory.getInstance().createFixture(body, shape, 0f, 0f, 0f, true);
 
         texture = GameAssets.getInstance().getTextureInstance(GameAssets.LASER_BEAM);
-        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / FRAME_COLS, texture.getHeight() / FRAME_ROWS);
+        TextureRegion[][] tmp = TextureRegion.split(texture, texture.getWidth() / FRAME_COLS,
+                texture.getHeight() / FRAME_ROWS);
         TextureRegion[] frames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
         int index = 0;
         for (int i = 0; i < FRAME_ROWS; i++) {
@@ -64,8 +65,8 @@ public class LaserBeam extends Projectile {
         float beamOffsetY = length / 2 * MathUtils.sin(angle);
 
         Vector2 beamStartPos = new Vector2(ownerPosition)
-                .add(beamOffsetX, beamOffsetY);  
-        
+                .add(beamOffsetX, beamOffsetY);
+
         sprite.setPosition(ownerPosition.x - sprite.getWidth() / 2, ownerPosition.y);
         sprite.setRotation(angle * MathUtils.radiansToDegrees - 90);
         body.setTransform(beamStartPos, angleForBody);
@@ -80,7 +81,6 @@ public class LaserBeam extends Projectile {
         currentFrame = animation.getKeyFrame(animationTimer, true);
         sprite.setRegion(currentFrame);
     }
-
 
     @Override
     public void render(SpriteBatch spriteBatch) {

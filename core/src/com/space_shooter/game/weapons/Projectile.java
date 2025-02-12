@@ -12,7 +12,6 @@ public abstract class Projectile extends DrawnEntity {
     protected BattleShip owner;
     protected boolean isDestroyedOnCollision = true;
 
-
     @Override
     public void update(float delta) {
         sprite.setPosition(body.getWorldPoint(body.getLocalCenter()).x, body.getWorldPoint(body.getLocalCenter()).y);
@@ -27,12 +26,16 @@ public abstract class Projectile extends DrawnEntity {
     public void onCollision(DrawnEntity other) {
         if (other instanceof BattleShip) {
             BattleShip ship = (BattleShip) other;
-            
-            if (EnnemyShip.class.isAssignableFrom(ship.getClass()) && EnnemyShip.class.isAssignableFrom(owner.getClass()) || ship == owner) {
+
+            // Previens le tir allié et le suicide
+            if (EnnemyShip.class.isAssignableFrom(ship.getClass())
+                    && EnnemyShip.class.isAssignableFrom(owner.getClass()) || ship == owner) {
                 return;
             }
-            if (!ship.isMarkedForRemoval()) ship.takeDamage(damage);
-            
+
+            if (!ship.isMarkedForRemoval() && !ship.isTeleporting())
+                ship.takeDamage(damage);
+
             if (isDestroyedOnCollision) {
                 markForRemoval();
             }

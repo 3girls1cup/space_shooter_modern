@@ -26,21 +26,25 @@ public class DistanceShooterShip extends EnnemyShip {
     private Vector2 targetPosition = new Vector2();
     private boolean needNewTargetPosition = false;
 
-    /*#### For debugging purposes ####*/
+    /* #### For debugging purposes #### */
     private Vector2 maxAngle = new Vector2();
     private Vector2 minAngle = new Vector2();
     private Vector2 snapshotPos = new Vector2();
-    /*################################*/
+    /* ################################ */
 
-    public DistanceShooterShip(Vector2 position) {
-        super(GameAssets.getInstance().getTextureInstance(GameAssets.DISTANCE_SHOOTER), position, "distance_shooter");
+    public DistanceShooterShip(Vector2 position, int health) {
+        super(GameAssets.getInstance().getTextureInstance(GameAssets.DISTANCE_SHOOTER), position, "distance_shooter",
+                health);
         this.color = Color.YELLOW;
-        this.health = GameConstants.DISTANCE_SHOOTER_HEALTH;
+        this.health = health * GameConstants.DISTANCE_SHOOTER_HEALTH_FACTOR;
         this.scoreValue = GameConstants.DISTANCE_SHOOTER_SCORE_VALUE;
         this.speed = (float) (Math.random()
                 * (GameConstants.DISTANCE_SHOOTER_MAX_SPEED - GameConstants.DISTANCE_SHOOTER_MIN_SPEED)
                 + GameConstants.DISTANCE_SHOOTER_MIN_SPEED);
-        this.weaponManager.addWeapon(new BasicWeapon(GameConstants.BASIC_NAME, 20f, 0.4f, GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_PLAYER), 1, -1, 500, true, this.weaponManager));
+        this.weaponManager.addWeapon(
+                new BasicWeapon(GameConstants.BASIC_NAME, 20f, 0.4f, GameConstants.ENNEMY_BASIC_PROJECTILE_FIXTURE_NAME,
+                        GameAssets.getInstance().getTextureInstance(GameAssets.BASIC_WEAPON_ENEMY),
+                        GameConstants.BASIC_DAMAGE, -1, 500, true, this.weaponManager));
         this.playerPosition = GameContext.getInstance().getPlayer().getBody().getWorldCenter();
 
         nextShotDelay = (long) MathUtils.random(MIN_DELAY_BETWEEN_SHOTS, MAX_DELAY_BETWEEN_SHOTS) * 1000L;
@@ -51,11 +55,11 @@ public class DistanceShooterShip extends EnnemyShip {
                 playerPosition.y - body.getWorldCenter().y).nor();
         shoot(direction);
     }
-    
+
     private void manageShooting() {
         if (TimeUtils.millis() - lastShotTime > nextShotDelay) {
             shootTowardPlayer();
-            lastShotTime = TimeUtils.millis();  
+            lastShotTime = TimeUtils.millis();
             nextShotDelay = (long) MathUtils.random(MIN_DELAY_BETWEEN_SHOTS, MAX_DELAY_BETWEEN_SHOTS) * 1000L;
         }
     }
@@ -63,9 +67,9 @@ public class DistanceShooterShip extends EnnemyShip {
     @Override
     public void render(SpriteBatch batch) {
         super.render(batch);
-        VisualDebugger.getInstance().drawDistanceShooterDebug(batch, body.getWorldCenter(), targetPosition, playerPosition, snapshotPos, maxAngle, minAngle, SAFE_DISTANCE);
+        VisualDebugger.getInstance().drawDistanceShooterDebug(batch, body.getWorldCenter(), targetPosition,
+                playerPosition, snapshotPos, maxAngle, minAngle, SAFE_DISTANCE);
     }
-
 
     @Override
     public void update(float delta) {
@@ -135,11 +139,11 @@ public class DistanceShooterShip extends EnnemyShip {
         float xA = body.getWorldCenter().x;
         float yA = body.getWorldCenter().y;
         float r = safeDistance;
-    
+
         float d = Vector2.dst(xA, yA, xC, yC);
-    
+
         float alpha = MathUtils.atan2(yC - yA, xC - xA);
-    
+
         if (d > r) {
             float theta = MathUtils.asin(r / d);
             float angle_min = alpha - theta;
@@ -156,23 +160,23 @@ public class DistanceShooterShip extends EnnemyShip {
                 chosen_angle = MathUtils.random(angle_max, MathUtils.PI2);
             }
 
-            /*#### For debugging purposes ####*/
+            /* #### For debugging purposes #### */
             maxAngle.set(xA + d * MathUtils.cos(angle_max), yA + d * MathUtils.sin(angle_max));
             minAngle.set(xA + d * MathUtils.cos(angle_min), yA + d * MathUtils.sin(angle_min));
             snapshotPos.set(xA, yA);
-            /*################################*/
+            /* ################################ */
 
             float maxDistance = calculateMaxDistance(xA, yA, chosen_angle);
             float chosen_distance = MathUtils.random(r + 1, maxDistance);
-    
+
             float targetX = xA + chosen_distance * MathUtils.cos(chosen_angle);
             float targetY = yA + chosen_distance * MathUtils.sin(chosen_angle);
-    
+
             targetPosition.x = MathUtils.clamp(targetX, 0, GameConfig.WORLD_WIDTH);
             targetPosition.y = MathUtils.clamp(targetY, 0, GameConfig.WORLD_HEIGHT);
         }
     }
-    
+
     private float calculateMaxDistance(float xA, float yA, float angle) {
         float maxX = (MathUtils.cos(angle) > 0 ? GameConfig.WORLD_WIDTH - xA : xA);
         float maxY = (MathUtils.sin(angle) > 0 ? GameConfig.WORLD_HEIGHT - yA : yA);
@@ -200,14 +204,16 @@ public class DistanceShooterShip extends EnnemyShip {
         body.setLinearVelocity(velocity.scl(speed));
     }
 
-    @Override 
-    public void onCollision(DrawnEntity entity) {
-        if (entity instanceof Wall) {
+    @Override
+    public void onCollision(DrawnEntity other) {
+        super.onCollision(other);
+        if (other instanceof Wall) {
+            setTargetPosition(playerPosition, SAFE_DISTANCE);
             startTeleportationAnimation(getDirectionToTargetPosition());
         }
 
-        if (entity instanceof EnnemyShip) {
-            EnnemyShip ennemyShip = (EnnemyShip) entity;
+        if (other instanceof EnnemyShip) {
+            EnnemyShip ennemyShip = (EnnemyShip) other;
             setTargetPosition(ennemyShip.getBody().getWorldCenter(), ennemyShip.getSprite().getWidth() + 1);
         }
     }

@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -27,7 +26,6 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private World world;
-    private Box2DDebugRenderer debugRenderer;
     private ShapeRenderer shapeRenderer;
     private SpriteBatch batch;
     private Texture backgroundTexture;
@@ -60,16 +58,15 @@ public class GameScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+
         camera.update();
         viewport.apply();
-        
-        batch.setProjectionMatrix(camera.combined); 
+
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight()); 
-    
-        shapeRenderer.setProjectionMatrix(camera.combined); 
-        
+        batch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
 
         world.getBodies(this.bodies);
 
@@ -86,12 +83,12 @@ public class GameScreen implements Screen {
                 VisualDebugger.getInstance().drawBodyOutline(shapeRenderer, batch, body, delta);
             }
         }
-        
+
         batch.end();
 
+        world.step(1 / 60f, 6, 2);
 
-        world.step(1/60f, 6, 2);
-
+        GameContext.getInstance().getGameHUD().stage.act(delta);
         GameContext.getInstance().getGameHUD().stage.draw();
 
         handleInput(delta);
@@ -102,17 +99,17 @@ public class GameScreen implements Screen {
             game.setScreen(new PauseScreen(game, this));
         }
     }
-    
+
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
         GameContext.getInstance().getGameHUD().resize(width, height);
         camera.position.set(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT / 2, 0);
     }
-    
+
     @Override
     public void pause() {
-        
+
     }
 
     @Override
@@ -124,13 +121,15 @@ public class GameScreen implements Screen {
 
     }
 
+    public void endGame() {
+        game.setScreen(new EndGameScreen(game));
+    }
+
     @Override
     public void dispose() {
         GameContext.getInstance().dispose();
         world.dispose();
-        debugRenderer.dispose();
         shapeRenderer.dispose();
-        batch.dispose();
         backgroundTexture.dispose();
     }
 

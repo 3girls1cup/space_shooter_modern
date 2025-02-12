@@ -52,6 +52,27 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         
     }
+
+    sourceSets {
+        main.java.srcDirs = [ "src/" ]
+        main.resources.srcDirs = ["../assets"]
+    }
+
+    // task copyAssets(type: Copy) {
+    //     from "../assets"
+    //     into "$buildDir/assets"
+    // }
+
+    // // S'assure que la tâche de copie est exécutée avant la construction du JAR
+    // jar {
+    //     dependsOn copyAssets
+    //     from("$buildDir/assets") {
+    //         into 'assets'
+    //     }
+    //     manifest {
+    //         attributes 'Main-Class': 'com.yourpackage.desktop.DesktopLauncher'
+    //     }
+    // }
 }
 
 project(":core") {

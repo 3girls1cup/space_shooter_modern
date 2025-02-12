@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -12,19 +11,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.space_shooter.game.core.GameAssets;
+import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.core.SpaceShooter;
 
-public class MainMenuScreen implements Screen {
+public class EndGameScreen implements Screen {
+    private Stage stage = new Stage(new ScreenViewport());
     private SpaceShooter game;
-    private Stage stage = new Stage();
     private Skin skin = GameAssets.getInstance().getSkinInstance(GameAssets.SKIN_SCI_FI);
     private Color textColor = Color.WHITE;
-    private Texture backgroundTexture;
 
-    public MainMenuScreen(SpaceShooter game) {
+    public EndGameScreen(SpaceShooter game) {
         this.game = game;
-        this.backgroundTexture = new Texture("background.jpg");
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -39,13 +38,17 @@ public class MainMenuScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Label welcomeLabel = new Label("Welcome to a special game !", skin);
-        welcomeLabel.setColor(textColor);
-        table.add(welcomeLabel).expandX().padTop(10f).row();
+        Label gameOverLabel = new Label("Game Over", skin);
+        gameOverLabel.setColor(textColor);
+        table.add(gameOverLabel).expandX().padTop(10f).row();
 
-        TextButton playButton = new TextButton("Play", skin);
-        playButton.getLabelCell().pad(10f);
-        playButton.addListener(new ClickListener() {
+        Label scoreLabel = new Label("Score: " + GameContext.getInstance().getGamePlayManager().getScore(), skin);
+        scoreLabel.setColor(textColor);
+        table.row();
+        table.add(scoreLabel).expandX().padTop(10f);
+
+        TextButton playAgainButton = new TextButton("Play Again", skin);
+        playAgainButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.setScreen(new GameScreen(game));
@@ -53,14 +56,17 @@ public class MainMenuScreen implements Screen {
         });
 
         table.row();
-        table.add(playButton).expandX().padTop(10f).row();
+        table.add(playAgainButton).expandX().padTop(10f).row();
 
-        Label creditsLabel = new Label("Created by:     Roman Perera\n\nMusic \"Envision\" by:      Kevin MacLeod",
-                skin);
-
-        creditsLabel.setColor(textColor);
-        creditsLabel.setFontScale(0.7f);
-        table.add(creditsLabel).expandX().padTop(10f).row();
+        TextButton mainMenuButton = new TextButton("Main Menu", skin);
+        mainMenuButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new MainMenuScreen(game));
+            }
+        });
+        table.row();
+        table.add(mainMenuButton).expandX().padTop(10f).row();
 
     }
 
@@ -74,25 +80,33 @@ public class MainMenuScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        float scale = Math.min(width, height) / 800f;
+        stage.getActors().forEach(actor -> {
+            if (actor instanceof TextButton) {
+                ((TextButton) actor).getLabel().setFontScale(scale);
+            } else if (actor instanceof Label) {
+                ((Label) actor).setFontScale(scale);
+            }
+        });
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
+        stage.dispose();
     }
 
     @Override
     public void dispose() {
-        backgroundTexture.dispose();
+        stage.dispose();
+        skin.dispose();
     }
+
 }

@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 import com.space_shooter.game.core.GameConstants;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-
 public class TeleportAnimation {
     private Body body;
     private float teleportAnimationTimer;
@@ -17,6 +16,7 @@ public class TeleportAnimation {
     private Array<Sprite> teleportSprites;
     private boolean isTeleporting;
     private Sprite baseSprite;
+
     public TeleportAnimation(Sprite baseSprite, Body body) {
         this.body = body;
         this.teleportAnimationTimer = 0f;
@@ -43,16 +43,18 @@ public class TeleportAnimation {
     }
 
     public void update(float deltaTime) {
-        if (!isTeleporting) return;
+        if (!isTeleporting)
+            return;
 
         teleportAnimationTimer += deltaTime;
+
         if (teleportAnimationTimer >= GameConstants.TELEPORT_ANIMATION_DURATION) {
             isTeleporting = false;
             float angle = body.getAngle();
-            
+
             float cos = MathUtils.cos(angle);
             float sin = MathUtils.sin(angle);
-    
+
             float bx = -body.getLocalCenter().x * cos + body.getLocalCenter().y * sin;
             float by = -body.getLocalCenter().x * sin - body.getLocalCenter().y * cos;
 
@@ -61,13 +63,13 @@ public class TeleportAnimation {
     }
 
     public void render(SpriteBatch spriteBatch) {
-        if (!isTeleporting) return;
+        if (!isTeleporting)
+            return;
 
         float progress = teleportAnimationTimer / GameConstants.TELEPORT_ANIMATION_DURATION;
         int numSprites = teleportSprites.size;
         float increment = 0.5f / (numSprites - 1);
 
-        
         for (int i = 0; i < numSprites; i++) {
             Sprite tempSprite = teleportSprites.get(i);
 
@@ -80,17 +82,17 @@ public class TeleportAnimation {
 
             float visibility = calculateOpacity(progress, peakTime, endFadeTime, i, numSprites);
 
-
             tempSprite.setRotation(baseSprite.getRotation());
             tempSprite.setScale(scale);
             tempSprite.setPosition(pos.x - tempSprite.getWidth() / 2, pos.y - tempSprite.getHeight() / 2);
             tempSprite.setColor(tempSprite.getColor().r, tempSprite.getColor().g, tempSprite.getColor().b, visibility);
-    
+
             tempSprite.draw(spriteBatch);
         }
     }
 
-    private float calculateOpacity(float currentProgress, float peakTime, float endFadeTime, int index, int numSprites) {
+    private float calculateOpacity(float currentProgress, float peakTime, float endFadeTime, int index,
+            int numSprites) {
         float visibility = 0f;
         if (currentProgress < peakTime) {
             visibility = 0f;

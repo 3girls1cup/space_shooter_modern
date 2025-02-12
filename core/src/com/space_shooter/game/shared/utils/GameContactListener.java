@@ -8,9 +8,9 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.space_shooter.game.shared.entities.DrawnEntity;
 
 public class GameContactListener implements ContactListener {
-      @Override
+    @Override
     public void beginContact(Contact contact) {
-        
+
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
 

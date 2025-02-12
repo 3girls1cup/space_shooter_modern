@@ -19,6 +19,7 @@ public abstract class Weapon {
     protected WeaponManager weaponManager;
     protected float projectileSpeed;
     protected Texture projectileTexture;
+    protected String projectileFixtureName;
     protected Color projectileColor;
     protected String iconPath;
 
@@ -59,7 +60,11 @@ public abstract class Weapon {
     }
 
     public void fire(Vector2 velocity) {
-        
+    }
+
+    public void addAmmo(int ammo) {
+        this.ammo += ammo;
+        notifyAmmoChanges();
     }
 
     public int getAmmo() {

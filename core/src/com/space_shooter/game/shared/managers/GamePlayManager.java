@@ -2,6 +2,7 @@ package com.space_shooter.game.shared.managers;
 
 import java.util.HashMap;
 
+import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.ennemies.EnnemyShip;
 
@@ -10,7 +11,7 @@ public class GamePlayManager {
     private int enemiesKilled;
     private int enemiesSpawned;
     private HashMap<String, Integer> enemies;
-    
+
     public GamePlayManager() {
         this.score = 0;
         this.enemiesKilled = 0;
@@ -24,7 +25,7 @@ public class GamePlayManager {
         } else {
             enemies.put(enemyType.getClass().getSimpleName(), 1);
         }
-        System.out.println("Enemies left: " + getEnnemiesLeft());
+
         enemiesSpawned++;
     }
 
@@ -33,9 +34,8 @@ public class GamePlayManager {
             enemies.put(enemyType.getClass().getSimpleName(), enemies.get(enemyType.getClass().getSimpleName()) - 1);
         }
         enemiesKilled++;
-
-        System.out.println("Enemies left: " + getEnnemiesLeft());
-        DifficultyManager.getInstance().update(enemyType.getScoreValue());
+        randomlyGiveAmmoToPlayer();
+        DifficultyManager.update(enemyType.getScoreValue());
         addScore(enemyType.getScoreValue());
         GameContext.getInstance().getGameHUD().updateScore(score);
     }
@@ -50,5 +50,11 @@ public class GamePlayManager {
 
     public int getScore() {
         return score;
+    }
+
+    public void randomlyGiveAmmoToPlayer() {
+        if (Math.random() < 0.1) {
+            GameContext.getInstance().getPlayer().getWeaponManager().addAmmo(GameConstants.LASER_NAME, 10);
+        }
     }
 }

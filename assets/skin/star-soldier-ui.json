@@ -150,6 +150,18 @@ com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 		knobBefore: slider-v
 	}
 }
+com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
+	default-horizontal: {
+		background: progress-bar-back
+		knob: progress-bar
+		knobBefore: progress-bar
+	}
+	default-vertical: {
+		background: progress-bar-back
+		knob: progress-bar
+		knobBefore: progress-bar
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
 	default-horizontal: {
 		handle: splitpane-h

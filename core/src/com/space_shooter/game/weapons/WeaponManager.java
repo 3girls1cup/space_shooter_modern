@@ -1,10 +1,8 @@
 package com.space_shooter.game.weapons;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
-import com.space_shooter.game.core.GameConstants;
 import com.space_shooter.game.core.GameContext;
 import com.space_shooter.game.player.PlayerShip;
 import com.space_shooter.game.shared.entities.BattleShip;
@@ -16,11 +14,6 @@ public class WeaponManager {
 
     public WeaponManager(BattleShip owner) {
         this.owner = owner;
-        initializeWeapons();
-    }
-
-    protected void initializeWeapons() {
-        addWeapon(new LaserWeapon(GameConstants.LASER_NAME, 1, 500, 100, true, this));
     }
 
     public void addWeapon(Weapon weapon) {
@@ -70,9 +63,11 @@ public class WeaponManager {
         return weapons.get(currentWeaponName);
     }
 
+    public void addAmmo(String weaponName, int ammo) {
+        weapons.get(weaponName).addAmmo(ammo);
+    }
+
     public BattleShip getOwner() {
         return owner;
     }
 }
-
-

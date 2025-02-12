@@ -21,7 +21,8 @@ public class Wall extends DrawnEntity {
     public Wall(float height, int angle, float speed) {
         this.width = GameConfig.SCREEN_DIAGONAL + SECURITY_ADDED_WIDTH;
         this.speed = speed;
-        this.body = BodyFactory.getInstance().createBody(GameContext.getInstance().getWorld(), BodyType.KinematicBody, getInitialPosition(angle).x, getInitialPosition(angle).y, false, angle);
+        this.body = BodyFactory.getInstance().createBody(GameContext.getInstance().getWorld(), BodyType.KinematicBody,
+                getInitialPosition(angle).x, getInitialPosition(angle).y, false, angle);
         this.body.setUserData(this);
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2, height / 2);
@@ -53,7 +54,8 @@ public class Wall extends DrawnEntity {
         float velocityX = speed * MathUtils.cos(body.getAngle() + MathUtils.PI / 2);
         float velocityY = speed * MathUtils.sin(body.getAngle() + MathUtils.PI / 2);
         body.setLinearVelocity(velocityX, velocityY);
-        sprite.setPosition(body.getWorldCenter().x - sprite.getWidth() / 2, body.getWorldCenter().y - sprite.getHeight() / 2);
+        sprite.setPosition(body.getWorldCenter().x - sprite.getWidth() / 2,
+                body.getWorldCenter().y - sprite.getHeight() / 2);
         sprite.setRotation(body.getAngle() * MathUtils.radiansToDegrees);
     }
 
